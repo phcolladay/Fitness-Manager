@@ -2,7 +2,7 @@
 ## Development Setup
 Follow the steps below to configure the local development environment for the Fitness-Manager project.
 
-### 1. Install Python
+1. Install Python
 Ensure Python 3.10 or newer is installed on your system.
 Verify the installation:
 python --version
@@ -23,7 +23,7 @@ Install the required packages using:
 pip install -r requirements.txt
 
 4. Configure the Database
-Ensure MongoDB is running locally or via Docker before starting the application.
+Ensure MongoDB(or other database) is running locally or via Docker before starting the application.
 Example (Docker):
 docker compose up -d
 
