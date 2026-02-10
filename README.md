@@ -23,7 +23,7 @@ Install the required packages using:
 pip install -r requirements.txt
 
 4. Configure the Database
-Ensure MongoDB is running locally or via Docker before starting the application.
+Ensure MongoDB(or other database) is running locally or via Docker before starting the application.
 Example (Docker):
 docker compose up -d
 
