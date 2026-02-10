@@ -1,15 +1,10 @@
-⭐ 1. Recommended Development Setup
+⭐ Recommended Development Setup
 ## Development Setup
-
 Follow the steps below to configure the local development environment for the Fitness-Manager project.
 
 ### 1. Install Python
-
 Ensure Python 3.10 or newer is installed on your system.
-
 Verify the installation:
-
-```bash
 python --version
 
 2. Create a Virtual 
