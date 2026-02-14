@@ -45,3 +45,6 @@ desktop.ini
 
 # Local deployment artifacts
 .deploy/
+
+# Misc local assets
+banana.png
