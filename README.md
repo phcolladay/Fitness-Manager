@@ -70,6 +70,13 @@ Common variables (matches `.env.example`):
 - `DJANGO_SECURE_PROXY_SSL_HEADER`: `1` if running behind a TLS-terminating proxy (Nginx/ALB) setting `X-Forwarded-Proto`
 - `DJANGO_SECURE_SSL_REDIRECT`: `1` to redirect HTTP->HTTPS at Django layer (often handled by Nginx instead)
 - `DJANGO_SECURE_COOKIES`: `1` to set secure cookies (recommended for HTTPS)
+- `DATABASE_URL`: database URL (recommended for production), e.g. `postgresql://user:pass@host:5432/dbname`
+- `DJANGO_DB_ENGINE`: database backend engine (alternative to `DATABASE_URL`)
+- `DJANGO_DB_NAME`: database name (required if using `DJANGO_DB_ENGINE` and not sqlite)
+- `DJANGO_DB_USER`: database user
+- `DJANGO_DB_PASSWORD`: database password
+- `DJANGO_DB_HOST`: database host
+- `DJANGO_DB_PORT`: database port
 - `USDA_API_KEY`: USDA FoodData Central key (optional)
 - `OPENAI_API_KEY`: OpenAI key for photo recognition (optional, required for recognition to work)
 - `OPENAI_MODEL`: model name for photo recognition (e.g. `gpt-4.1-mini`)
@@ -86,6 +93,15 @@ Minimum required env for production:
 Static/media:
 - `collectstatic` outputs to `staticfiles/` (served by Nginx in a typical setup)
 - user uploads go to `media/`
+
+## Docker (Optional)
+This repo includes a minimal working Docker setup under `features/config/` (web + Postgres):
+
+Run:
+- `docker compose -f features/config/docker-compose.yml up --build`
+
+Then open:
+- `http://127.0.0.1:8000/`
 
 ## Example Deployment (Nginx + systemd + Gunicorn)
 High-level:

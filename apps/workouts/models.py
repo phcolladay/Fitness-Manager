@@ -8,8 +8,6 @@ class Workout(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="workouts",
-        null=True,
-        blank=True,
     )
     name = models.CharField(max_length=120)
     performed_on = models.DateField(default=timezone.localdate)
@@ -24,8 +22,6 @@ class ExerciseEntry(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="exercise_entries",
-        null=True,
-        blank=True,
     )
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE, related_name="exercises")
     exercise_name = models.CharField(max_length=120)

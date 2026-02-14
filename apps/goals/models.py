@@ -19,8 +19,6 @@ class Goal(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="goals",
-        null=True,
-        blank=True,
     )
     name = models.CharField(max_length=120)
     goal_type = models.CharField(max_length=30, choices=GOAL_TYPES)

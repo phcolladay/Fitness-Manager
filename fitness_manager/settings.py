@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,12 +97,64 @@ WSGI_APPLICATION = "fitness_manager.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+def _database_from_url(url: str) -> dict:
+    p = urlparse(url)
+    scheme = (p.scheme or "").lower()
+
+    if scheme in {"postgres", "postgresql", "psql"}:
+        engine = "django.db.backends.postgresql"
+    elif scheme in {"mysql"}:
+        engine = "django.db.backends.mysql"
+    elif scheme in {"sqlite", "sqlite3"}:
+        engine = "django.db.backends.sqlite3"
+    else:
+        raise ValueError(f"Unsupported DATABASE_URL scheme: {scheme!r}")
+
+    if engine == "django.db.backends.sqlite3":
+        name = unquote(p.path or "").lstrip("/") or ":memory:"
+        return {"ENGINE": engine, "NAME": name}
+
+    opts: dict = {}
+    qs = parse_qs(p.query or "")
+    if "sslmode" in qs and qs["sslmode"]:
+        opts["sslmode"] = qs["sslmode"][0]
+
+    return {
+        "ENGINE": engine,
+        "NAME": unquote((p.path or "").lstrip("/")),
+        "USER": unquote(p.username or ""),
+        "PASSWORD": unquote(p.password or ""),
+        "HOST": p.hostname or "",
+        "PORT": str(p.port or ""),
+        "OPTIONS": opts,
     }
-}
+
+
+_database_url = os.getenv("DATABASE_URL") or os.getenv("DJANGO_DATABASE_URL")
+if _database_url:
+    DATABASES = {"default": _database_from_url(_database_url)}
+else:
+    db_engine = os.getenv("DJANGO_DB_ENGINE", "django.db.backends.sqlite3")
+    if db_engine == "django.db.backends.sqlite3":
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+            }
+        }
+    else:
+        DATABASES = {
+            "default": {
+                "ENGINE": db_engine,
+                "NAME": os.getenv("DJANGO_DB_NAME", ""),
+                "USER": os.getenv("DJANGO_DB_USER", ""),
+                "PASSWORD": os.getenv("DJANGO_DB_PASSWORD", ""),
+                "HOST": os.getenv("DJANGO_DB_HOST", ""),
+                "PORT": os.getenv("DJANGO_DB_PORT", ""),
+            }
+        }
+        if DJANGO_ENV == "production" and not DATABASES["default"]["NAME"]:
+            raise RuntimeError("Database NAME must be set for non-sqlite databases (DJANGO_DB_NAME or DATABASE_URL).")
 
 
 # Password validation

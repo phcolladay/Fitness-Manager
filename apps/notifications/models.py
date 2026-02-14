@@ -21,8 +21,6 @@ class Notification(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="notifications",
-        null=True,
-        blank=True,
     )
     channel = models.CharField(max_length=10, choices=CHANNELS, default="inapp")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
@@ -33,5 +31,3 @@ class Notification(models.Model):
 
     def __str__(self) -> str:
         return f"{self.channel}: {self.message[:30]}"
-
-# Create your models here.

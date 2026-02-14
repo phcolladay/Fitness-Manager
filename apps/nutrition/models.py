@@ -14,8 +14,6 @@ class FoodEntry(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="food_entries",
-        null=True,
-        blank=True,
     )
     name = models.CharField(max_length=150)
     brand = models.CharField(max_length=100, blank=True)
@@ -41,8 +39,6 @@ class WaterEntry(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="water_entries",
-        null=True,
-        blank=True,
     )
     amount_ml = models.PositiveIntegerField(default=0)
     consumed_at = models.DateTimeField(default=timezone.now)
@@ -62,8 +58,6 @@ class FoodPhoto(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="food_photos",
-        null=True,
-        blank=True,
     )
     image = models.ImageField(upload_to="food_photos/")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
