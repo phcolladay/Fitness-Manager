@@ -11,6 +11,9 @@
   </div>
   <div class="panel" style="max-width: 560px">
     <div class="panel-inner">
+    <p class="hint">
+      Username is case-sensitive. Password must be at least 8 characters and cannot be too common.
+    </p>
     <form method="post">
       {% csrf_token %}
       {{ form.as_p }}

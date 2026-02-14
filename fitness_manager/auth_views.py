@@ -17,6 +17,7 @@ def signup(request):
             user = form.save()
             login(request, user)
             return redirect("workouts:home")
+        messages.error(request, "Sign up failed. Please review the errors below (password rules apply).")
     else:
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})

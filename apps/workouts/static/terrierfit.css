@@ -305,6 +305,30 @@ label {
   color: rgba(18, 9, 11, 0.68);
   margin: 0 0 6px;
 }
+
+.hint {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(225, 29, 72, 0.06);
+  border: 1px solid rgba(225, 29, 72, 0.18);
+  color: rgba(18, 9, 11, 0.78);
+  font-size: 13px;
+}
+
+/* Django form errors */
+.errorlist {
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  list-style: none;
+  background: rgba(220, 38, 38, 0.07);
+  border: 1px solid rgba(220, 38, 38, 0.22);
+  color: rgba(120, 10, 10, 0.95);
+  font-weight: 700;
+}
+.errorlist li { margin: 0; }
+.errorlist.nonfield { margin-top: 0; }
 input, select, textarea {
   width: 100%;
   padding: 11px 12px;
