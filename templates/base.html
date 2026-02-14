@@ -19,23 +19,32 @@
             </div>
           </a>
 
-          <nav class="nav" aria-label="Primary">
-            <a href="{% url 'workouts:home' %}">Dashboard</a>
-            <a href="{% url 'workouts:list' %}">Workouts</a>
-            <a href="{% url 'nutrition:list' %}">Nutrition</a>
-            <a href="{% url 'nutrition:water_list' %}">Water</a>
-            <a href="{% url 'goals:list' %}">Goals</a>
-            <a href="{% url 'notifications:list' %}">Notifications</a>
-          </nav>
+          <input class="nav-toggle" type="checkbox" id="nav-toggle" />
+          <label class="nav-toggle-btn" for="nav-toggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+          </label>
 
-          <div class="userbox">
-            {% if user.is_authenticated %}
-              <span class="pill">{{ user.username }}</span>
-              <a class="btn btn-ghost" href="{% url 'logout' %}">Logout</a>
-            {% else %}
-              <a class="btn btn-ghost" href="{% url 'login' %}">Login</a>
-              <a class="btn" href="{% url 'signup' %}">Sign up</a>
-            {% endif %}
+          <div class="nav-panel">
+            <nav class="nav" aria-label="Primary">
+              <a href="{% url 'workouts:home' %}">Dashboard</a>
+              <a href="{% url 'workouts:list' %}">Workouts</a>
+              <a href="{% url 'nutrition:list' %}">Nutrition</a>
+              <a href="{% url 'nutrition:water_list' %}">Water</a>
+              <a href="{% url 'goals:list' %}">Goals</a>
+              <a href="{% url 'notifications:list' %}">Notifications</a>
+            </nav>
+
+            <div class="userbox">
+              {% if user.is_authenticated %}
+                <span class="pill">{{ user.username }}</span>
+                <a class="btn btn-ghost" href="{% url 'logout' %}">Logout</a>
+              {% else %}
+                <a class="btn btn-ghost" href="{% url 'login' %}">Login</a>
+                <a class="btn" href="{% url 'signup' %}">Sign up</a>
+              {% endif %}
+            </div>
           </div>
         </div>
       </header>

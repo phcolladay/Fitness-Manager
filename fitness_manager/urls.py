@@ -21,12 +21,13 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
-from .auth_views import signup
+from .auth_views import guest_login, signup
 
 urlpatterns = [
     path("login/", auth_views.LoginView.as_view(template_name="registration/login.html"), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("signup/", signup, name="signup"),
+    path("guest/", guest_login, name="guest_login"),
     path("", include("apps.workouts.urls")),
     path("nutrition/", include("apps.nutrition.urls")),
     path("goals/", include("apps.goals.urls")),
