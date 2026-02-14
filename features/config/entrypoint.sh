@@ -10,4 +10,3 @@ exec gunicorn fitness_manager.wsgi:application \
   --timeout "${GUNICORN_TIMEOUT:-120}" \
   --access-logfile - \
   --error-logfile -
-
