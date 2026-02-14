@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Not Found | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Not Found</h1>
+      <p class="subtitle">The requested page does not exist.</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'workouts:home' %}">Go to dashboard</a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Workouts | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Workouts</h1>
+      <p class="subtitle">Log sessions, then drill into exercises and burn estimates.</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'workouts:add' %}">Add workout</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      {% if workouts %}
+        <table>
+          <thead>
+            <tr>
+              <th>Workout</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for workout in workouts %}
+              <tr>
+                <td style="font-weight:900">{{ workout.name }}</td>
+                <td class="muted">{{ workout.performed_on }}</td>
+                <td style="text-align:right">
+                  <a class="btn btn-ghost" href="{% url 'workouts:detail' workout.id %}">Open</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No workouts yet.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Food Photo | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Photo Recognition</h1>
+      <p class="subtitle">Upload a meal photo. We extract structured nutrition estimates.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Back</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      <p class="muted" style="margin-top: 0">Requires <code>OPENAI_API_KEY</code> in your environment.</p>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+          <button class="btn" type="submit">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

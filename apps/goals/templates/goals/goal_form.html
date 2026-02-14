@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Add Goal | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Add Goal</h1>
+      <p class="subtitle">Pick a metric, set a target, and let the reminders do the rest.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+          <button class="btn" type="submit">Save</button>
+          <a class="btn btn-ghost" href="{% url 'goals:list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

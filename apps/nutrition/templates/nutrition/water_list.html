@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Water | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Water</h1>
+      <p class="subtitle">Hydration entries, timestamped and simple.</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'nutrition:water_add' %}">Add water</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      {% if entries %}
+        <table>
+          <thead>
+            <tr>
+              <th>Amount (ml)</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in entries %}
+              <tr>
+                <td style="font-weight:900">{{ entry.amount_ml }}</td>
+                <td class="muted">{{ entry.consumed_at|date:"Y-m-d H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No water entries yet.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

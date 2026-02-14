@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Goals | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Goals</h1>
+      <p class="subtitle">Targets that keep you honest. Email or push reminders supported.</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'goals:add' %}">Add goal</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      {% if goals %}
+        <table>
+          <thead>
+            <tr>
+              <th>Goal</th>
+              <th>Target</th>
+              <th>Progress</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for goal in goals %}
+              <tr>
+                <td style="font-weight:900">{{ goal.name }}</td>
+                <td class="muted">{{ goal.target_value }} {{ goal.unit }}</td>
+                <td class="muted">{{ goal.current_progress }}</td>
+                <td class="muted">{% if goal.active %}Active{% else %}Paused{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No goals yet.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

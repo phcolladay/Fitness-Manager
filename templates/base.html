@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Fitness Manager{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'terrierfit.css' %}" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <a class="brand" href="{% url 'workouts:home' %}">
+            <img src="{% static 'brand/terrierfit-mark.png' %}" alt="TerrierFit" />
+            <div>
+              <p class="brand-name">TerrierFit</p>
+              <p class="brand-tag">Fitness manager that feels like a product</p>
+            </div>
+          </a>
+
+          <nav class="nav" aria-label="Primary">
+            <a href="{% url 'workouts:home' %}">Dashboard</a>
+            <a href="{% url 'workouts:list' %}">Workouts</a>
+            <a href="{% url 'nutrition:list' %}">Nutrition</a>
+            <a href="{% url 'nutrition:water_list' %}">Water</a>
+            <a href="{% url 'goals:list' %}">Goals</a>
+            <a href="{% url 'notifications:list' %}">Notifications</a>
+          </nav>
+
+          <div class="userbox">
+            {% if user.is_authenticated %}
+              <span class="pill">{{ user.username }}</span>
+              <a class="btn btn-ghost" href="{% url 'logout' %}">Logout</a>
+            {% else %}
+              <a class="btn btn-ghost" href="{% url 'login' %}">Login</a>
+              <a class="btn" href="{% url 'signup' %}">Sign up</a>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+
+      <main>
+        {% if messages %}
+          <div class="toast">
+            <ul>
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer>
+        TerrierFit. Build strength. Track progress. Stay consistent.
+      </footer>
+    </div>
+  </body>
+</html>

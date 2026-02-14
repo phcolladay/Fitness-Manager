@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Add Water | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Add Water</h1>
+      <p class="subtitle">Quick entry. Amount and time.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+          <button class="btn" type="submit">Save</button>
+          <a class="btn btn-ghost" href="{% url 'nutrition:water_list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
