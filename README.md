@@ -99,7 +99,7 @@ High-level:
 6. Use Certbot to enable HTTPS.
 
 ### Domain + Nginx (same EIP as other site)
-If you already have another domain on the same Elastic IP (for example `reskin.ink`), you bind this app by adding another server block using `server_name terrierfit.com www.terrierfit.com` and proxying to a different upstream port (here: `8010`).
+If you already have another domain on the same Elastic IP, you bind this app by adding another server block using `server_name terrierfit.com www.terrierfit.com` and proxying to a different upstream port (here: `8010`).
 
 Minimal Nginx shape (conceptual):
 ```nginx
