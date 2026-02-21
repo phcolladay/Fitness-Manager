@@ -376,8 +376,8 @@ button { font: inherit; }
 .auth-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 18px;
+  margin-top: 22px;
 }
 
 .auth-inline-form {
@@ -387,15 +387,48 @@ button { font: inherit; }
 
 .auth-btn {
   width: 100%;
-  min-height: 48px;
-  padding: 12px 14px;
+  min-height: 54px;
+  padding: 14px 16px;
   border-radius: 14px;
   justify-content: center;
 }
 
 .auth-actions-stack {
-  padding-top: 14px;
+  padding-top: 20px;
   border-top: 1px solid rgba(18, 9, 11, 0.10);
+}
+
+.api-tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.api-tool {
+  display: block;
+  padding: 14px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(18, 9, 11, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+.api-tool:hover {
+  transform: translateY(-1px);
+  border-color: rgba(225, 29, 72, 0.35);
+  box-shadow: 0 12px 22px rgba(225, 29, 72, 0.12);
+}
+.api-tool-title {
+  display: block;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  color: rgba(18, 9, 11, 0.96);
+}
+.api-tool-meta {
+  display: block;
+  margin-top: 6px;
+  color: rgba(18, 9, 11, 0.66);
+  font-size: 13px;
 }
 
 .divider {
@@ -472,6 +505,7 @@ footer {
 
   .title { font-size: 28px; }
   .span-4, .span-6, .span-8 { grid-column: span 12; }
+  .api-tools { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -9,13 +9,30 @@
       <p class="subtitle">Your daily snapshot, without the noise.</p>
     </div>
     <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:lookup' %}">USDA API Lookup</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:photo_upload' %}">Scan Food Photo</a>
       <a class="btn" href="{% url 'workouts:add' %}">Add Workout</a>
     </div>
   </div>
 
   <div class="grid">
+    <div class="span-12 panel">
+      <div class="panel-inner">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:10px">
+          <h2 style="margin:0; font-family: Fraunces, serif">API Tools</h2>
+          <span class="muted" style="font-size:12px; font-weight:700">Nutrition data + image recognition</span>
+        </div>
+        <div class="api-tools">
+          <a class="api-tool" href="{% url 'nutrition:photo_upload' %}">
+            <span class="api-tool-title">OpenAI Photo Recognition</span>
+            <span class="api-tool-meta">Upload food photo and auto-estimate calories/macros.</span>
+          </a>
+          <a class="api-tool" href="{% url 'nutrition:lookup' %}">
+            <span class="api-tool-title">USDA API Lookup</span>
+            <span class="api-tool-meta">Search USDA FoodData Central and prefill nutrition data.</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <div class="span-4 stat">
       <div class="k">Calories In</div>
       <div class="v">{{ calories_in }}</div>
