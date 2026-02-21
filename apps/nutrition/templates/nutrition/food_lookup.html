@@ -15,6 +15,9 @@
 
   <div class="panel">
     <div class="panel-inner">
+      {% if not usda_enabled %}
+        <p class="hint">USDA API key is not configured on this server. Search will return empty results.</p>
+      {% endif %}
       <form method="get">
         {{ form.as_p }}
         <div class="form-actions">

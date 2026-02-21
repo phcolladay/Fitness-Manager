@@ -11,15 +11,13 @@
   </div>
   <div class="panel" style="max-width: 560px">
     <div class="panel-inner">
-    <form method="post">
+    <form id="login-form" method="post">
       {% csrf_token %}
       {{ form.as_p }}
-      <div class="auth-actions">
-        <button class="btn auth-btn" type="submit">Sign in</button>
-      </div>
     </form>
 
-    <div class="auth-actions">
+    <div class="auth-actions auth-actions-stack">
+      <button class="btn auth-btn" type="submit" form="login-form">Sign in</button>
       <a class="btn btn-ghost auth-btn" href="{% url 'signup' %}">Create account</a>
       <form class="auth-inline-form" method="post" action="{% url 'guest_login' %}">
         {% csrf_token %}

@@ -1,4 +1,5 @@
 import logging
+import os
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -51,6 +52,7 @@ def food_add(request):
 @login_required
 def food_lookup(request):
     results = []
+    usda_enabled = bool(os.getenv("USDA_API_KEY"))
     form = FoodLookupForm(request.GET or None)
     if form.is_valid():
         results = search_usda_foods(form.cleaned_data["query"])
@@ -59,7 +61,7 @@ def food_lookup(request):
     return render(
         request,
         "nutrition/food_lookup.html",
-        {"form": form, "results": results},
+        {"form": form, "results": results, "usda_enabled": usda_enabled},
     )
 
 
