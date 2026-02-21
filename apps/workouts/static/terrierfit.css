@@ -195,6 +195,7 @@ a:hover { text-decoration: none; }
   letter-spacing: 0.2px;
   box-shadow: 0 16px 34px rgba(225, 29, 72, 0.26);
   transition: transform 120ms ease, filter 120ms ease;
+  cursor: pointer;
 }
 .btn:hover { transform: translateY(-1px); filter: brightness(1.03); }
 .btn:active { transform: translateY(0px); }
@@ -207,12 +208,14 @@ a:hover { text-decoration: none; }
 }
 .btn-ghost:hover { background: rgba(18, 9, 11, 0.10); }
 
-.panel .btn-ghost {
+.panel .btn-ghost,
+.panel .btn.btn-ghost {
   background: rgba(225, 29, 72, 0.10);
   color: rgba(110, 12, 32, 0.98);
   border-color: rgba(225, 29, 72, 0.30);
 }
-.panel .btn-ghost:hover {
+.panel .btn-ghost:hover,
+.panel .btn.btn-ghost:hover {
   background: rgba(225, 29, 72, 0.16);
 }
 
@@ -360,9 +363,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 4px rgba(225, 29, 72, 0.15);
 }
 
-button {
-  all: unset;
-}
+button { font: inherit; }
 
 .form-actions {
   display: flex;
