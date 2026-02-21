@@ -14,20 +14,19 @@
     <form method="post">
       {% csrf_token %}
       {{ form.as_p }}
-      <div class="form-actions">
-        <button class="btn" type="submit">Sign in</button>
-        <a class="btn btn-ghost" href="{% url 'signup' %}">Create account</a>
+      <div class="auth-actions">
+        <button class="btn auth-btn" type="submit">Sign in</button>
       </div>
     </form>
 
-    <div class="divider"></div>
-    <form method="post" action="{% url 'guest_login' %}">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next }}" />
-      <div class="form-actions">
-        <button class="btn btn-ghost" type="submit">Continue as guest</button>
-      </div>
-    </form>
+    <div class="auth-actions">
+      <a class="btn btn-ghost auth-btn" href="{% url 'signup' %}">Create account</a>
+      <form class="auth-inline-form" method="post" action="{% url 'guest_login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}" />
+        <button class="btn btn-ghost auth-btn" type="submit">Continue as guest</button>
+      </form>
+    </div>
     </div>
   </div>
 {% endblock %}
