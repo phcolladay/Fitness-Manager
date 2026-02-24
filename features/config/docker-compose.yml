@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fitness_manager
+      POSTGRES_USER: fitness_manager
+      POSTGRES_PASSWORD: fitness_manager
+    volumes:
+      - fitness_manager_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fitness_manager -d fitness_manager"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: ../..
+      dockerfile: features/config/Dockerfile
+    environment:
+      DJANGO_ENV: production
+      DJANGO_DEBUG: "0"
+      DJANGO_SECRET_KEY: change-me
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      DJANGO_CSRF_TRUSTED_ORIGINS: http://localhost:8000
+      DATABASE_URL: postgresql://fitness_manager:fitness_manager@db:5432/fitness_manager
+      USDA_API_KEY: ${USDA_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - fitness_manager_media:/app/media
+      - fitness_manager_static:/app/staticfiles
+
+volumes:
+  fitness_manager_db:
+  fitness_manager_media:
+  fitness_manager_static:
+

@@ -15,9 +15,38 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.contrib.auth import views as auth_views
+from django.urls import include, path
+
+from .auth_views import guest_login, logout_view, signup
+from .forms import EmailOrUsernameAuthenticationForm
 
 urlpatterns = [
+    path(
+        "login/",
+        auth_views.LoginView.as_view(
+            template_name="registration/login.html",
+            authentication_form=EmailOrUsernameAuthenticationForm,
+        ),
+        name="login",
+    ),
+    path("logout/", logout_view, name="logout"),
+    path("signup/", signup, name="signup"),
+    path("password-reset/", auth_views.PasswordResetView.as_view(), name="password_reset"),
+    path("password-reset/done/", auth_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
+    path("reset/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(), name="password_reset_confirm"),
+    path("reset/done/", auth_views.PasswordResetCompleteView.as_view(), name="password_reset_complete"),
+    path("guest/", guest_login, name="guest_login"),
+    path("", include("apps.workouts.urls")),
+    path("nutrition/", include("apps.nutrition.urls")),
+    path("goals/", include("apps.goals.urls")),
+    path("notifications/", include("apps.notifications.urls")),
+    path("profile/", include("apps.profiles.urls")),
     path("admin/", admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

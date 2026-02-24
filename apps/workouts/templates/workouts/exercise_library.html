@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Exercise Library | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Exercise Library</h1>
+      <p class="subtitle">Search exercises by name with instructions and muscle group.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'workouts:list' %}">Back</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      <form method="get">
+        <p>
+          <label for="id_q">Search</label>
+          <input id="id_q" type="text" name="q" value="{{ q }}" placeholder="e.g. squat, push-up, deadlift" />
+        </p>
+        <div class="form-actions">
+          <button class="btn" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div style="height:14px"></div>
+  <div class="panel">
+    <div class="panel-inner">
+      {% if items %}
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Muscle Group</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+              <tr>
+                <td style="font-weight:900">{{ item.name }}</td>
+                <td class="muted">{{ item.category|default:"-" }}</td>
+                <td class="muted">{{ item.muscle_group|default:"-" }}</td>
+                <td class="muted">
+                  {{ item.description|default:"-" }}
+                  {% if item.instructions %}
+                    <br /><strong>How:</strong> {{ item.instructions }}
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No exercises found.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+

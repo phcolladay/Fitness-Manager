@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Ingredient Estimate | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Ingredient Estimate</h1>
+      <p class="subtitle">Describe a meal with no label and get estimated calories/macros.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Back</a>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      <form method="post" data-loading="Estimating nutrition...">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+          <button class="btn" type="submit">Estimate Nutrition</button>
+          <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Manual entry</a>
+        </div>
+        <p class="loading-note">Estimating nutrition...</p>
+      </form>
+    </div>
+  </div>
+{% endblock %}

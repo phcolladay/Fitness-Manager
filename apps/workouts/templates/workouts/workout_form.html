@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Workout | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">{% if mode == "edit" %}Edit{% else %}Add{% endif %} Workout</h1>
+      <p class="subtitle">Keep it lightweight. Name, date, notes. Done.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+          <button class="btn" type="submit">Save</button>
+          <a class="btn btn-ghost" href="{% url 'workouts:list' %}">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

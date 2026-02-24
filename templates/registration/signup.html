@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Sign up</h1>
+      <p class="subtitle">Create your account and keep your data private.</p>
+    </div>
+  </div>
+  <div class="panel" style="max-width: 560px">
+    <div class="panel-inner">
+    <p class="hint">
+      Username is case-sensitive. Password must be at least 8 characters and cannot be too common.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="form-actions">
+        <button class="btn" type="submit">Create account</button>
+        <a class="btn btn-ghost" href="{% url 'login' %}">Sign in</a>
+      </div>
+    </form>
+    </div>
+  </div>
+{% endblock %}

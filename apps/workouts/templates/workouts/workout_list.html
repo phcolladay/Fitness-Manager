@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Workouts | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Workouts</h1>
+      <p class="subtitle">Log sessions, then drill into exercises and burn estimates.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'workouts:list' %}?period=day">Day</a>
+      <a class="btn btn-ghost" href="{% url 'workouts:list' %}?period=week">Week</a>
+      <a class="btn btn-ghost" href="{% url 'workouts:list' %}?period=month">Month</a>
+      <a class="btn btn-ghost" href="{% url 'workouts:exercise_library' %}">Exercise Library</a>
+      <a class="btn btn-ghost" href="{% url 'workouts:plan_list' %}">Workout Plans</a>
+      <a class="btn" href="{% url 'workouts:add' %}">Add workout</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="span-4 stat">
+      <div class="k">{{ period|title }} Minutes</div>
+      <div class="v">{{ period_minutes }}</div>
+      <div class="h">Current period total</div>
+    </div>
+    <div class="span-4 stat">
+      <div class="k">Previous {{ period|title }}</div>
+      <div class="v">{{ previous_minutes }}</div>
+      <div class="h">Previous period total</div>
+    </div>
+    <div class="span-4 stat">
+      <div class="k">Trend Delta</div>
+      <div class="v">{% if trend_delta > 0 %}+{% endif %}{{ trend_delta }}</div>
+      <div class="h">{% if trend_delta > 0 %}Improving{% elif trend_delta < 0 %}Down{% else %}Flat{% endif %} · {{ period_calories }} kcal</div>
+    </div>
+  </div>
+  <div style="height:14px"></div>
+
+  <div class="panel">
+    <div class="panel-inner">
+      {% if workouts %}
+        <table>
+          <thead>
+            <tr>
+              <th>Workout</th>
+              <th>Date</th>
+              <th>Trend Signal</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for workout in workouts %}
+              <tr>
+                <td style="font-weight:900">{{ workout.name }}</td>
+                <td class="muted">{{ workout.performed_on }}</td>
+                <td class="muted">{% if workout.exercises.count > 0 %}Logged{% else %}No exercises{% endif %}</td>
+                <td style="text-align:right">
+                  <a class="btn btn-ghost" href="{% url 'workouts:detail' workout.id %}">Open</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No workouts yet.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

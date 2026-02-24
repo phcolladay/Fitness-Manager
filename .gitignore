@@ -1,0 +1,50 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.so
+*.egg-info/
+build/
+dist/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+.env
+
+# Django local artifacts
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+
+# Logs
+logs/
+*.log
+
+# IDEs / editors
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local deployment artifacts
+.deploy/
+
+# Misc local assets
+banana.png
