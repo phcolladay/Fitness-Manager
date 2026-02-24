@@ -10,6 +10,8 @@
     </div>
     <div class="actions">
       <a class="btn btn-ghost" href="{% url 'nutrition:lookup' %}">USDA API Lookup</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:estimate' %}">Ingredient Estimate</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}">Nutrition Summary</a>
       <a class="btn btn-ghost" href="{% url 'nutrition:photo_upload' %}">Photo recognition</a>
       <a class="btn" href="{% url 'nutrition:add' %}">Add food</a>
     </div>
@@ -25,6 +27,7 @@
               <th>Calories</th>
               <th>Macros (P/C/F)</th>
               <th>Time</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -34,6 +37,13 @@
                 <td class="muted">{{ food.calories }}</td>
                 <td class="muted">{{ food.protein_g }}/{{ food.carbs_g }}/{{ food.fat_g }}</td>
                 <td class="muted">{{ food.consumed_at|date:"Y-m-d H:i" }}</td>
+                <td style="text-align:right">
+                  <a class="btn btn-ghost" href="{% url 'nutrition:edit' food.id %}">Edit</a>
+                  <form method="post" action="{% url 'nutrition:delete' food.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost" type="submit">Delete</button>
+                  </form>
+                </td>
               </tr>
             {% endfor %}
           </tbody>

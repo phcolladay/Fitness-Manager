@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Any
 
 import requests
@@ -45,17 +46,32 @@ def search_usda_foods(query: str) -> list[dict[str, Any]]:
     api_key = os.getenv("USDA_API_KEY")
     if not api_key:
         return []
-    try:
-        response = requests.get(
-            USDA_BASE_URL,
-            params={"api_key": api_key, "query": query, "pageSize": 5},
-            timeout=10,
-        )
-        response.raise_for_status()
-        payload = response.json()
-    except requests.RequestException:
-        logger.exception("USDA lookup failed")
-        return []
+    payload = {}
+    for attempt in range(2):
+        try:
+            response = requests.get(
+                USDA_BASE_URL,
+                params={"api_key": api_key, "query": query, "pageSize": 5},
+                timeout=10,
+            )
+            if response.status_code >= 500 and attempt == 0:
+                time.sleep(0.4)
+                continue
+            response.raise_for_status()
+            payload = response.json()
+            break
+        except (requests.Timeout, requests.ConnectionError):
+            if attempt == 0:
+                time.sleep(0.4)
+                continue
+            logger.exception("USDA lookup failed after retry")
+            return []
+        except requests.HTTPError:
+            logger.warning("USDA lookup HTTP error status=%s", getattr(response, "status_code", "unknown"))
+            return []
+        except requests.RequestException:
+            logger.exception("USDA lookup failed")
+            return []
     results = []
     for food in payload.get("foods", []):
         nutrients = _extract_nutrients(food.get("foodNutrients", []))

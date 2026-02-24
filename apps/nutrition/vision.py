@@ -3,6 +3,7 @@ from io import BytesIO
 import json
 import logging
 import os
+import time
 
 import requests
 
@@ -56,62 +57,92 @@ def _coerce_json_object(text: str) -> dict:
         raise ValueError("Model returned invalid JSON")
 
 
-def recognize_food(image_path: str) -> dict:
+def _call_responses_api(content_items: list[dict]) -> dict:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set")
-
-    image_b64 = _image_to_jpeg_b64(image_path)
-
-    # Responses API request shape:
-    # - inputs use {"type":"input_text"} / {"type":"input_image","image_url":"..."} items
-    # - structured output is configured via text.format (not response_format)
-    response = requests.post(
-        "https://api.openai.com/v1/responses",
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-            "input": [
-                {
-                    "role": "user",
-                    "content": [
+    response = None
+    for attempt in range(2):
+        try:
+            response = requests.post(
+                "https://api.openai.com/v1/responses",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+                    "input": [
                         {
-                            "type": "input_text",
-                            "text": (
-                                "Identify the food in the image and return ONLY a JSON object with keys: "
-                                "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg. "
-                                "Use numbers for all *_g, calories, sodium_mg. Use best effort estimates."
-                            ),
-                        },
-                        {
-                            "type": "input_image",
-                            "image_url": f"data:image/jpeg;base64,{image_b64}",
-                        },
+                            "role": "user",
+                            "content": content_items,
+                        }
                     ],
-                }
-            ],
-            "text": {"format": {"type": "json_object"}},
-            "temperature": 0.2,
-        },
-        timeout=30,
-    )
-    try:
-        response.raise_for_status()
-    except requests.HTTPError:
-        # Log enough to debug in server logs; never return this to the user directly.
-        request_id = response.headers.get("x-request-id") or response.headers.get("x-request-id".upper())
-        body = (response.text or "")[:1200]
-        logger.error(
-            "OpenAI /v1/responses failed status=%s request_id=%s body=%s",
-            response.status_code,
-            request_id,
-            body,
-        )
-        raise
+                    "text": {"format": {"type": "json_object"}},
+                    "temperature": 0.2,
+                },
+                timeout=20,
+            )
+            if response.status_code >= 500 and attempt == 0:
+                time.sleep(0.4)
+                continue
+            response.raise_for_status()
+            break
+        except (requests.Timeout, requests.ConnectionError):
+            if attempt == 0:
+                time.sleep(0.4)
+                continue
+            logger.exception("OpenAI /v1/responses failed after retry")
+            raise
+        except requests.HTTPError:
+            # Log enough to debug in server logs; never return this to the user directly.
+            request_id = response.headers.get("x-request-id") or response.headers.get("x-request-id".upper())
+            body = (response.text or "")[:1200]
+            logger.error(
+                "OpenAI /v1/responses failed status=%s request_id=%s body=%s",
+                response.status_code,
+                request_id,
+                body,
+            )
+            raise
 
     payload = response.json()
     output_text = _extract_output_text(payload)
     return _coerce_json_object(output_text)
+
+
+def recognize_food(image_path: str) -> dict:
+    if not os.getenv("OPENAI_API_KEY"):
+        raise RuntimeError("OPENAI_API_KEY is not set")
+    image_b64 = _image_to_jpeg_b64(image_path)
+    return _call_responses_api(
+        [
+            {
+                "type": "input_text",
+                "text": (
+                    "Identify the food in the image and return ONLY a JSON object with keys: "
+                    "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg. "
+                    "Use numbers for all *_g, calories, sodium_mg. Use best effort estimates."
+                ),
+            },
+            {
+                "type": "input_image",
+                "image_url": f"data:image/jpeg;base64,{image_b64}",
+            },
+        ]
+    )
+
+
+def estimate_food_from_text(description: str) -> dict:
+    return _call_responses_api(
+        [
+            {
+                "type": "input_text",
+                "text": (
+                    "Given this meal description, estimate nutrition and return ONLY JSON with keys: "
+                    "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg. "
+                    f"Meal: {description}"
+                ),
+            }
+        ]
+    )

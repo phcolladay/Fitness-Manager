@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Nutrition Summary | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Nutrition Summary</h1>
+      <p class="subtitle">Aggregate calories, macros, micros, and hydration by period.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=day">Day</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=week">Week</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=month">Month</a>
+      <a class="btn" href="{% url 'nutrition:list' %}">Back to list</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="span-3 stat">
+      <div class="k">Calories In</div>
+      <div class="v">{{ calories_in }}</div>
+      <div class="h">{{ period }}</div>
+    </div>
+    <div class="span-3 stat">
+      <div class="k">Calories Out</div>
+      <div class="v">{{ calories_out }}</div>
+      <div class="h">{{ period }}</div>
+    </div>
+    <div class="span-3 stat">
+      <div class="k">Net Calories</div>
+      <div class="v">{{ net }}</div>
+      <div class="h" style="font-weight:800">{{ net_state|title }}</div>
+    </div>
+    <div class="span-3 stat">
+      <div class="k">Water</div>
+      <div class="v">{{ water_total }} ml</div>
+      <div class="h">{{ water_goal_ml }} ml goal/day</div>
+    </div>
+  </div>
+
+  <div style="height: 14px"></div>
+  <div class="grid">
+    <div class="span-6 panel">
+      <div class="panel-inner">
+        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Macros vs Recommended</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nutrient</th>
+              <th>Current</th>
+              <th>Recommended</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Protein (g)</td><td>{{ protein }}</td><td>{{ macro_recommended.protein_g }}</td><td>{{ macro_pct.protein_g }}%</td></tr>
+            <tr><td>Carbs (g)</td><td>{{ carbs }}</td><td>{{ macro_recommended.carbs_g }}</td><td>{{ macro_pct.carbs_g }}%</td></tr>
+            <tr><td>Fat (g)</td><td>{{ fat }}</td><td>{{ macro_recommended.fat_g }}</td><td>{{ macro_pct.fat_g }}%</td></tr>
+            <tr><td>Fiber (g)</td><td>{{ fiber }}</td><td>{{ micro_recommended.fiber_g }}</td><td>{{ micro_pct.fiber_g }}%</td></tr>
+            <tr><td>Sodium (mg)</td><td>{{ sodium }}</td><td>{{ micro_recommended.sodium_mg }}</td><td>{{ micro_pct.sodium_mg }}%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="span-6 panel">
+      <div class="panel-inner">
+        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Micros (Logged JSON)</h2>
+        {% if micros_total %}
+          <table>
+            <thead>
+              <tr>
+                <th>Micronutrient</th>
+                <th>Total</th>
+                <th>Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for key, value in micros_total.items %}
+                <tr>
+                  <td>{{ key }}</td>
+                  <td>{{ value|floatformat:2 }}</td>
+                  <td>
+                    {% if key == "fiber_g" %}
+                      {{ micro_recommended.fiber_g }}
+                    {% elif key == "sodium_mg" %}
+                      {{ micro_recommended.sodium_mg }}
+                    {% elif key == "iron_mg" %}
+                      {{ micro_recommended.iron_mg }}
+                    {% elif key == "calcium_mg" %}
+                      {{ micro_recommended.calcium_mg }}
+                    {% elif key == "vitamin_c_mg" %}
+                      {{ micro_recommended.vitamin_c_mg }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="muted">No micronutrient JSON data logged in this period.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

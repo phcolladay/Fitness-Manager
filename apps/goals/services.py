@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from apps.nutrition.models import FoodEntry, WaterEntry
 from apps.workouts.models import ExerciseEntry, Workout
+from apps.workouts.models import ExerciseLibrary
 
 
 def _date_range(goal_start: date) -> tuple[date, date]:
@@ -95,3 +96,22 @@ def calculate_goal_progress(goal) -> float:
         )
         return float(total)
     return 0.0
+
+
+def recommend_exercises_for_goal(goal_type: str, limit: int = 5):
+    category_map = {
+        "workout_minutes": ["cardio", "strength"],
+        "workouts_per_week": ["strength", "cardio"],
+        "calories": ["cardio"],
+        "net_calories": ["cardio", "hiit"],
+    }
+    categories = category_map.get(goal_type, [])
+    qs = ExerciseLibrary.objects.all()
+    if categories:
+        qs = qs.filter(category__in=categories)
+    results = list(qs[:limit])
+    if len(results) < limit:
+        existing_names = {r.name for r in results}
+        extra = ExerciseLibrary.objects.exclude(name__in=existing_names)[: max(0, limit - len(results))]
+        results.extend(list(extra))
+    return results

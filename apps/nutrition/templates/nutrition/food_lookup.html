@@ -18,12 +18,13 @@
       {% if not usda_enabled %}
         <p class="hint">USDA API key is not configured on this server. Search will return empty results.</p>
       {% endif %}
-      <form method="get">
+      <form method="get" data-loading="Searching USDA...">
         {{ form.as_p }}
         <div class="form-actions">
           <button class="btn" type="submit">Search</button>
           <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Manual entry</a>
         </div>
+        <p class="loading-note">Searching USDA...</p>
       </form>
     </div>
   </div>

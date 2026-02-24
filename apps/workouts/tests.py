@@ -3,8 +3,9 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory
 from django.http import Http404
+from django.db.models import Q
 
-from .models import ExerciseEntry, Workout
+from .models import ExerciseEntry, ExerciseLibrary, Workout
 from .views import workout_detail
 
 
@@ -40,3 +41,24 @@ class WorkoutAuthTests(TestCase):
         request.user = u2
         with self.assertRaises(Http404):
             workout_detail(request, workout_id=workout.id)
+
+
+class ExerciseLibraryTests(TestCase):
+    def test_search_matches_instructions(self):
+        ExerciseLibrary.objects.create(
+            name="Farmer Carry",
+            category="strength",
+            muscle_group="full body",
+            description="Carry heavy weights for distance.",
+            instructions="Walk slowly with tight core and neutral spine.",
+        )
+
+        q = "neutral spine"
+        results = ExerciseLibrary.objects.filter(
+            Q(name__icontains=q)
+            | Q(category__icontains=q)
+            | Q(muscle_group__icontains=q)
+            | Q(description__icontains=q)
+            | Q(instructions__icontains=q)
+        )
+        self.assertTrue(results.filter(name="Farmer Carry").exists())

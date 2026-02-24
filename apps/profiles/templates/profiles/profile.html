@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Profile</h1>
+      <p class="subtitle">Demographics and daily targets used for calorie and hydration guidance.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="span-8 panel">
+      <div class="panel-inner">
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="form-actions">
+            <button class="btn" type="submit">Save profile</button>
+            <a class="btn btn-ghost" href="{% url 'workouts:home' %}">Back</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="span-4 panel">
+      <div class="panel-inner">
+        <h2 style="margin:0 0 10px; font-family: Fraunces, serif">Guidance</h2>
+        <div class="stat">
+          <div class="k">Estimated Daily Calories</div>
+          <div class="v">
+            {% if recommended_calories %}
+              {{ recommended_calories }}
+            {% else %}
+              -
+            {% endif %}
+          </div>
+          <div class="h">Based on profile fields</div>
+        </div>
+        <div style="height:10px"></div>
+        <div class="stat">
+          <div class="k">Water Goal</div>
+          <div class="v">{{ profile.daily_water_goal_ml }} ml</div>
+          <div class="h">Editable above</div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

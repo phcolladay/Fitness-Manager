@@ -24,16 +24,62 @@ class FoodEntryForm(forms.ModelForm):
         ]
         widgets = {"consumed_at": forms.DateTimeInput(attrs={"type": "datetime-local"})}
 
+    def clean(self):
+        cleaned = super().clean()
+        for field in [
+            "quantity",
+            "calories",
+            "protein_g",
+            "carbs_g",
+            "fat_g",
+            "fiber_g",
+            "sugar_g",
+            "sodium_mg",
+        ]:
+            value = cleaned.get(field)
+            if value is not None and value < 0:
+                self.add_error(field, "Value must be non-negative.")
+        return cleaned
+
 
 class WaterEntryForm(forms.ModelForm):
+    unit = forms.ChoiceField(choices=[("ml", "Milliliters (ml)"), ("oz", "Fluid ounces (oz)")], initial="ml")
+    amount = forms.DecimalField(min_value=0, decimal_places=2, max_digits=7, help_text="Enter water amount.")
+
     class Meta:
         model = WaterEntry
-        fields = ["amount_ml", "consumed_at"]
+        fields = ["consumed_at"]
         widgets = {"consumed_at": forms.DateTimeInput(attrs={"type": "datetime-local"})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields["unit"].initial = "ml"
+            self.fields["amount"].initial = self.instance.amount_ml
+
+    def save(self, commit=True):
+        entry = super().save(commit=False)
+        amount = self.cleaned_data["amount"]
+        unit = self.cleaned_data["unit"]
+        if unit == "oz":
+            entry.amount_ml = int(round(float(amount) * 29.5735))
+        else:
+            entry.amount_ml = int(round(float(amount)))
+        if commit:
+            entry.save()
+        return entry
 
 
 class FoodLookupForm(forms.Form):
     query = forms.CharField(max_length=150)
+
+
+class FoodEstimateForm(forms.Form):
+    description = forms.CharField(
+        label="Meal Description / Ingredients",
+        widget=forms.Textarea(attrs={"rows": 4, "placeholder": "e.g. grilled chicken breast, brown rice, broccoli"}),
+        max_length=1000,
+    )
 
 
 class FoodPhotoForm(forms.ModelForm):

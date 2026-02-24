@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "apps.nutrition",
     "apps.goals",
     "apps.notifications",
+    "apps.profiles",
 ]
 
 MIDDLEWARE = [
@@ -199,6 +200,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "workouts:home"
 LOGOUT_REDIRECT_URL = "login"
+AUTHENTICATION_BACKENDS = [
+    "fitness_manager.auth_backends.EmailOrUsernameModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+SESSION_COOKIE_AGE = int(os.getenv("DJANGO_SESSION_TIMEOUT_SECONDS", str(60 * 60 * 2)))
+SESSION_SAVE_EVERY_REQUEST = True
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE", str(10 * 1024 * 1024)))
 FOOD_PHOTO_MAX_UPLOAD_SIZE = int(os.getenv("FOOD_PHOTO_MAX_UPLOAD_SIZE", str(5 * 1024 * 1024)))

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Add Workout | Fitness Manager{% endblock %}
+{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Workout | Fitness Manager{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <div>
-      <h1 class="title">Add Workout</h1>
+      <h1 class="title">{% if mode == "edit" %}Edit{% else %}Add{% endif %} Workout</h1>
       <p class="subtitle">Keep it lightweight. Name, date, notes. Done.</p>
     </div>
   </div>

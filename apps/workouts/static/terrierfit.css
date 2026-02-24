@@ -268,6 +268,7 @@ main {
   grid-template-columns: repeat(12, 1fr);
   gap: 14px;
 }
+.span-3 { grid-column: span 3; }
 .span-4 { grid-column: span 4; }
 .span-6 { grid-column: span 6; }
 .span-8 { grid-column: span 8; }
@@ -398,6 +399,18 @@ button { font: inherit; }
   border-top: 1px solid rgba(18, 9, 11, 0.10);
 }
 
+.loading-note {
+  display: none;
+  margin: 10px 0 0;
+  color: rgba(18, 9, 11, 0.68);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+form.is-loading .loading-note {
+  display: block;
+}
+
 .api-tools {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -504,7 +517,7 @@ footer {
   .nav-shell[open] .nav-panel { display: flex; }
 
   .title { font-size: 28px; }
-  .span-4, .span-6, .span-8 { grid-column: span 12; }
+  .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
   .api-tools { grid-template-columns: 1fr; }
 }
 

@@ -9,11 +9,16 @@
       <p class="subtitle">Welcome back. Keep the streak alive.</p>
     </div>
   </div>
-  <div class="panel" style="max-width: 560px">
+    <div class="panel" style="max-width: 560px">
     <div class="panel-inner">
+    <p class="hint">Guest mode is temporary. Guest data is removed on logout and stale guest accounts are auto-cleaned.</p>
     <form id="login-form" method="post">
       {% csrf_token %}
       {{ form.as_p }}
+      <p class="muted" style="margin-top: 2px">
+        Forgot password?
+        <a href="{% url 'password_reset' %}" style="text-decoration: underline">Reset here</a>
+      </p>
     </form>
 
     <div class="auth-actions auth-actions-stack">

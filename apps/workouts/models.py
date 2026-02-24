@@ -33,3 +33,40 @@ class ExerciseEntry(models.Model):
 
     def __str__(self) -> str:
         return f"{self.exercise_name} - {self.duration_minutes} min"
+
+
+class ExerciseLibrary(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    category = models.CharField(max_length=50, blank=True)
+    muscle_group = models.CharField(max_length=50, blank=True)
+    description = models.TextField(blank=True)
+    instructions = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class WorkoutPlan(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="workout_plans",
+    )
+    name = models.CharField(max_length=120)
+    goal_focus = models.CharField(max_length=120, blank=True)
+    sessions_per_week = models.PositiveIntegerField(default=3)
+    details = models.TextField(
+        help_text="Describe exercises, sets/reps, and scheduling.",
+        blank=True,
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-id"]
+
+    def __str__(self) -> str:
+        return self.name

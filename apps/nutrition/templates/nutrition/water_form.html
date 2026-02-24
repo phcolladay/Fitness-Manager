@@ -1,24 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Add Water | Fitness Manager{% endblock %}
+{% block title %}{% if mode == "edit" %}Edit Water{% else %}Add Water{% endif %} | Fitness Manager{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <div>
-      <h1 class="title">Add Water</h1>
+      {% if mode == "edit" %}
+        <h1 class="title">Edit Water</h1>
+      {% else %}
+        <h1 class="title">Add Water</h1>
+      {% endif %}
       <p class="subtitle">Quick entry. Amount and time.</p>
     </div>
   </div>
 
   <div class="panel">
     <div class="panel-inner">
-      <form method="post">
+      <form method="post" data-loading="Saving water entry...">
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
-          <button class="btn" type="submit">Save</button>
+          <button class="btn" type="submit">{% if mode == "edit" %}Update{% else %}Save{% endif %}</button>
           <a class="btn btn-ghost" href="{% url 'nutrition:water_list' %}">Cancel</a>
         </div>
+        <p class="loading-note">Saving water entry...</p>
       </form>
     </div>
   </div>

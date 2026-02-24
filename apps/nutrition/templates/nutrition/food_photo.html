@@ -15,13 +15,14 @@
 
   <div class="panel">
     <div class="panel-inner">
-      <p class="muted" style="margin-top: 0">Requires <code>OPENAI_API_KEY</code> in your environment.</p>
-      <form method="post" enctype="multipart/form-data">
+      <p class="muted" style="margin-top: 0">Requires <code>OPENAI_API_KEY</code> in your environment. You can edit estimates before saving.</p>
+      <form method="post" enctype="multipart/form-data" data-loading="Analyzing photo...">
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
           <button class="btn" type="submit">Upload</button>
         </div>
+        <p class="loading-note">Analyzing photo...</p>
       </form>
     </div>
   </div>

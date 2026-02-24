@@ -9,6 +9,11 @@
       <p class="subtitle">{{ workout.performed_on }}{% if workout.notes %} · {{ workout.notes }}{% endif %}</p>
     </div>
     <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'workouts:edit' workout.id %}">Edit workout</a>
+      <form method="post" action="{% url 'workouts:delete' workout.id %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn btn-ghost" type="submit">Delete workout</button>
+      </form>
       <a class="btn" href="{% url 'workouts:exercise_add' workout.id %}">Add exercise</a>
     </div>
   </div>
@@ -24,6 +29,7 @@
               <th>Duration</th>
               <th>Category</th>
               <th>Calories</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -33,6 +39,13 @@
                 <td class="muted">{{ exercise.duration_minutes }} min</td>
                 <td class="muted">{% if exercise.category %}{{ exercise.category }}{% else %}-{% endif %}</td>
                 <td class="muted">{% if exercise.calories_burned %}{{ exercise.calories_burned }}{% else %}-{% endif %}</td>
+                <td style="text-align:right">
+                  <a class="btn btn-ghost" href="{% url 'workouts:exercise_edit' workout.id exercise.id %}">Edit</a>
+                  <form method="post" action="{% url 'workouts:exercise_delete' workout.id exercise.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost" type="submit">Delete</button>
+                  </form>
+                </td>
               </tr>
             {% endfor %}
           </tbody>

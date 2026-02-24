@@ -23,6 +23,8 @@
               <th>Target</th>
               <th>Progress</th>
               <th>Status</th>
+              <th>Suggested Exercises</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -32,6 +34,20 @@
                 <td class="muted">{{ goal.target_value }} {{ goal.unit }}</td>
                 <td class="muted">{{ goal.current_progress }}</td>
                 <td class="muted">{% if goal.active %}Active{% else %}Paused{% endif %}</td>
+                <td class="muted">
+                  {% if goal.recommended_exercises %}
+                    {% for ex in goal.recommended_exercises %}{{ ex.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td style="text-align:right">
+                  <a class="btn btn-ghost" href="{% url 'goals:edit' goal.id %}">Edit</a>
+                  <form method="post" action="{% url 'goals:delete' goal.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost" type="submit">Delete</button>
+                  </form>
+                </td>
               </tr>
             {% endfor %}
           </tbody>

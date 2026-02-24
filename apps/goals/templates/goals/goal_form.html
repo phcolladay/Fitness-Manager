@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Add Goal | Fitness Manager{% endblock %}
+{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Goal | Fitness Manager{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <div>
-      <h1 class="title">Add Goal</h1>
+      <h1 class="title">{% if mode == "edit" %}Edit{% else %}Add{% endif %} Goal</h1>
       <p class="subtitle">Pick a metric, set a target, and let the reminders do the rest.</p>
     </div>
   </div>

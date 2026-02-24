@@ -32,14 +32,19 @@
                 <a href="{% url 'workouts:list' %}">Workouts</a>
                 <a href="{% url 'nutrition:list' %}">Nutrition</a>
                 <a href="{% url 'nutrition:water_list' %}">Water</a>
+                <a href="{% url 'profiles:body_metrics' %}">Body Metrics</a>
                 <a href="{% url 'goals:list' %}">Goals</a>
                 <a href="{% url 'notifications:list' %}">Notifications</a>
+                <a href="{% url 'profiles:profile' %}">Profile</a>
               </nav>
 
               <div class="userbox">
                 {% if user.is_authenticated %}
                   <span class="pill">{{ user.username }}</span>
-                  <a class="btn btn-ghost" href="{% url 'logout' %}">Logout</a>
+                  <form method="post" action="{% url 'logout' %}" style="margin:0">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost" type="submit">Logout</button>
+                  </form>
                 {% else %}
                   <a class="btn btn-ghost" href="{% url 'login' %}">Login</a>
                   <a class="btn" href="{% url 'signup' %}">Sign up</a>
@@ -67,5 +72,24 @@
         TerrierFit. Build strength. Track progress. Stay consistent.
       </footer>
     </div>
+    <script>
+      (function () {
+        const forms = document.querySelectorAll("form[data-loading]");
+        forms.forEach(function (form) {
+          let loadingTimer = null;
+          form.addEventListener("submit", function () {
+            loadingTimer = window.setTimeout(function () {
+              form.classList.add("is-loading");
+            }, 1000);
+          });
+          form.addEventListener("reset", function () {
+            if (loadingTimer) {
+              clearTimeout(loadingTimer);
+            }
+            form.classList.remove("is-loading");
+          });
+        });
+      })();
+    </script>
   </body>
 </html>

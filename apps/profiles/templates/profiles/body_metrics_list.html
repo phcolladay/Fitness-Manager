@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Body Metrics | Fitness Manager{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 class="title">Body Metrics</h1>
+      <p class="subtitle">Track weight and measurements over time.</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="{% url 'profiles:body_metrics_add' %}">Add entry</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="span-3 stat">
+      <div class="k">Daily Avg Weight</div>
+      <div class="v">{% if summaries.daily %}{{ summaries.daily|floatformat:1 }}{% else %}-{% endif %}</div>
+      <div class="h">Today (kg)</div>
+    </div>
+    <div class="span-3 stat">
+      <div class="k">Weekly Avg Weight</div>
+      <div class="v">{% if summaries.weekly %}{{ summaries.weekly|floatformat:1 }}{% else %}-{% endif %}</div>
+      <div class="h">Last 7 days (kg)</div>
+    </div>
+    <div class="span-3 stat">
+      <div class="k">Monthly Avg Weight</div>
+      <div class="v">{% if summaries.monthly %}{{ summaries.monthly|floatformat:1 }}{% else %}-{% endif %}</div>
+      <div class="h">Last 30 days (kg)</div>
+    </div>
+    <div class="span-3 stat">
+      <div class="k">Trend</div>
+      <div class="v">
+        {% if trend is not None %}
+          {% if trend > 0 %}+{% endif %}{{ trend|floatformat:1 }}
+        {% else %}
+          -
+        {% endif %}
+      </div>
+      <div class="h">Latest vs previous (kg)</div>
+    </div>
+  </div>
+
+  <div style="height: 14px"></div>
+  <div class="panel">
+    <div class="panel-inner">
+      {% if entries %}
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Weight</th>
+              <th>Waist/Chest/Hip</th>
+              <th>Body Fat %</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in entries %}
+              <tr>
+                <td class="muted">{{ e.measured_on }}</td>
+                <td style="font-weight:900">{{ e.weight_kg }} kg</td>
+                <td class="muted">{{ e.waist_cm|default:"-" }}/{{ e.chest_cm|default:"-" }}/{{ e.hip_cm|default:"-" }}</td>
+                <td class="muted">{{ e.body_fat_pct|default:"-" }}</td>
+                <td style="text-align:right">
+                  <a class="btn btn-ghost" href="{% url 'profiles:body_metrics_edit' e.id %}">Edit</a>
+                  <form method="post" action="{% url 'profiles:body_metrics_delete' e.id %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="btn btn-ghost" type="submit">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="muted">No body metrics yet.</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
