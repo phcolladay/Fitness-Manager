@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 from django.conf import settings
 from django.db import models
@@ -39,7 +40,7 @@ class UserProfile(models.Model):
         }
         return mapping.get(self.activity_level, Decimal("1.55"))
 
-    def estimated_daily_calories(self) -> int | None:
+    def estimated_daily_calories(self) -> Optional[int]:
         """
         Estimate maintenance calories using Mifflin-St Jeor (when required fields are present).
         """
