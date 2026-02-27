@@ -80,6 +80,14 @@ Common variables (matches `.env.example`):
 - `USDA_API_KEY`: USDA FoodData Central key (optional)
 - `OPENAI_API_KEY`: OpenAI key for photo recognition (optional, required for recognition to work)
 - `OPENAI_MODEL`: model name for photo recognition (e.g. `gpt-4.1-mini`)
+- `EMAIL_BACKEND`: email backend path (default `django.core.mail.backends.console.EmailBackend`)
+- `EMAIL_HOST`: SMTP host (required for real email delivery)
+- `EMAIL_PORT`: SMTP port (typically `587` for TLS)
+- `EMAIL_HOST_USER`: SMTP username
+- `EMAIL_HOST_PASSWORD`: SMTP password/token
+- `EMAIL_USE_TLS`: `1` or `0`
+- `EMAIL_USE_SSL`: `1` or `0` (mutually exclusive with TLS)
+- `EMAIL_TIMEOUT_SECONDS`: SMTP timeout seconds
 - `DEFAULT_FROM_EMAIL`: email sender (from)
 - `DEFAULT_NOTIFICATION_EMAIL`: email recipient for notifications (to)
 
@@ -147,3 +155,8 @@ One-time (example):
 
 Renewal (typical):
 - `sudo certbot renew --dry-run`
+
+### Password Reset Email Delivery
+- If `EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend`, reset emails are printed to server logs and are **not** delivered to inboxes.
+- For real delivery, configure SMTP vars (`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, TLS/SSL flags) in `/home/ec2-user/fitness-manager/.env` and restart:
+  - `sudo systemctl restart fitness-manager`
