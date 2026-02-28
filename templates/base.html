@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Fitness Manager{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'terrierfit.css' %}?v=20260228d" />
+    <link rel="stylesheet" href="{% static 'terrierfit.css' %}?v=20260228e" />
   </head>
   <body>
     <div class="shell">
@@ -19,7 +19,7 @@
             </div>
           </a>
 
-          <details class="nav-shell">
+          <details class="nav-shell" open>
             <summary class="nav-toggle-btn" aria-label="Toggle navigation">
               <span></span>
               <span></span>
@@ -74,6 +74,23 @@
     </div>
     <script>
       (function () {
+        const navShell = document.querySelector(".nav-shell");
+        const mobileMq = window.matchMedia("(max-width: 860px)");
+        const syncNavDefaultState = function () {
+          if (!navShell) return;
+          if (mobileMq.matches) {
+            navShell.removeAttribute("open");
+          } else {
+            navShell.setAttribute("open", "");
+          }
+        };
+        syncNavDefaultState();
+        if (mobileMq.addEventListener) {
+          mobileMq.addEventListener("change", syncNavDefaultState);
+        } else if (mobileMq.addListener) {
+          mobileMq.addListener(syncNavDefaultState);
+        }
+
         const forms = document.querySelectorAll("form[data-loading]");
         forms.forEach(function (form) {
           let loadingTimer = null;
