@@ -71,7 +71,7 @@ a:hover { text-decoration: none; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-width: 220px;
+  min-width: 180px;
 }
 .brand img {
   width: 34px;
@@ -140,11 +140,15 @@ a:hover { text-decoration: none; }
 .nav {
   display: flex;
   flex: 1;
+  flex-wrap: wrap;
   gap: 10px;
+  row-gap: 8px;
   align-items: center;
   justify-content: center;
 }
 .nav a {
+  display: inline-flex;
+  align-items: center;
   color: rgba(255, 255, 255, 0.82);
   padding: 9px 10px;
   border-radius: 999px;
@@ -154,6 +158,7 @@ a:hover { text-decoration: none; }
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.1px;
+  white-space: nowrap;
 }
 .nav a:hover {
   background: rgba(255, 255, 255, 0.08);
@@ -166,7 +171,7 @@ a:hover { text-decoration: none; }
   align-items: center;
   gap: 10px;
   justify-content: flex-end;
-  min-width: 240px;
+  min-width: 180px;
 }
 .pill {
   display: inline-flex;
@@ -444,6 +449,28 @@ form.is-loading .loading-note {
   font-size: 13px;
 }
 
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+}
+
+.section-meta {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.panel-gap {
+  margin-bottom: 14px;
+}
+
 .divider {
   height: 1px;
   margin: 14px 0;
@@ -504,6 +531,7 @@ footer {
     border-radius: 12px;
     padding: 12px 12px;
     text-align: center;
+    white-space: normal;
   }
   .userbox {
     min-width: 0;
