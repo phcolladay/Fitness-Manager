@@ -6,7 +6,7 @@
   <div class="page-head">
     <div>
       <h1 class="title">Nutrition Summary</h1>
-      <p class="subtitle">Aggregate calories, macros, micros, and hydration by period.</p>
+      <p class="subtitle">See calories, macros, micronutrients, and hydration by day, week, or month.</p>
     </div>
     <div class="actions">
       <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=day">Day</a>
@@ -43,7 +43,7 @@
   <div class="grid">
     <div class="span-6 panel">
       <div class="panel-inner">
-        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Macros vs Recommended</h2>
+        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Macros vs Daily Targets</h2>
         <table>
           <thead>
             <tr>
@@ -66,7 +66,7 @@
 
     <div class="span-6 panel">
       <div class="panel-inner">
-        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Micros (Logged JSON)</h2>
+        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Micronutrients From Logged Foods</h2>
         {% if micros_total %}
           <table>
             <thead>
@@ -101,7 +101,7 @@
             </tbody>
           </table>
         {% else %}
-          <p class="muted">No micronutrient JSON data logged in this period.</p>
+          <p class="muted">No micronutrient data logged for this period.</p>
         {% endif %}
       </div>
     </div>
