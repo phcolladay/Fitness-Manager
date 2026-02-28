@@ -1,149 +1,161 @@
-# Fitness Manager
+# TerrierFit (Fitness Manager)
 
-Fitness tracking app (workouts, nutrition, goals, notifications) with:
-- Django auth (login/signup/logout)
-- Per-user data isolation (all models are user-owned and views are scoped to `request.user`)
-- Food photo recognition (OpenAI) + nutrition lookup (USDA)
+Midterm Presentation - Version 1
 
-Production instance (example):
-- Domain: `https://terrierfit.com/`
-- App server (Gunicorn): `127.0.0.1:8010` behind Nginx
+TerrierFit is a Django-based fitness tracking app focused on daily consistency: workouts, nutrition, hydration, goals, and progress visibility in one place.
 
-## Quickstart (Local Dev)
-Prereqs: Python 3.10+
+## Project Highlights
 
-1. Create and activate a venv
-   - Windows (PowerShell):
-     - `python -m venv venv`
-     - `.\venv\Scripts\Activate`
-   - Linux/macOS:
-     - `python3 -m venv venv`
-     - `source venv/bin/activate`
+- Unified dashboard for calories in/out, net calories, hydration progress, active goals, workouts, and notifications
+- Workout logging with exercise-level details and calorie burn tracking
+- Nutrition logging with multiple input modes:
+  - Manual entry
+  - USDA food search (FoodData Central)
+  - AI estimate from meal description
+  - AI estimate from meal photo
+- Water intake tracking with period summaries
+- Body metrics tracking (weight and measurements)
+- Goal tracking with reminders
+- User authentication and per-user data isolation across all features
 
-2. Install deps
-   - `pip install -r requirements.txt`
+## Demo Flow (Recommended for Presentation)
 
-3. Create a local `.env` (optional but recommended)
-   - Copy `.env.example` -> `.env`
-   - Set at least:
-     - `DJANGO_DEBUG=1`
-     - `DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1`
+1. Open Dashboard to show daily snapshot
+2. Go to Nutrition -> Add Food -> Quick Add Options
+3. Show USDA lookup and AI estimate entry paths
+4. Show Nutrition Summary (day/week/month)
+5. Show Workouts and Body Metrics trends
+6. Show Goals and Notifications
 
-4. Migrate + run
-   - `python manage.py migrate`
-   - `python manage.py runserver`
+## Tech Stack
 
-Open `http://127.0.0.1:8000/`.
+- Backend: Django 4.x
+- Database: SQLite (local) / configurable for production
+- Frontend: Django templates + custom CSS
+- AI integration: OpenAI Responses API (photo + text nutrition estimate)
+- External data: USDA FoodData Central API
+- Deployment: Gunicorn + Nginx + systemd (EC2)
 
-Auth:
-- Signup: `/signup/`
-- Login: `/login/`
-- Admin: `/admin/` (create superuser via `python manage.py createsuperuser`)
+## Repository Structure
 
-## Integrations (Optional)
-Set in `.env` (do not commit `.env`):
-- `USDA_API_KEY`: enables USDA FoodData Central lookup
-- `OPENAI_API_KEY`: enables food photo recognition (OpenAI Responses API)
-- `OPENAI_MODEL`: model for recognition (e.g. `gpt-4.1-mini`)
-
-OpenAI notes:
-- This project uses the OpenAI Responses API endpoint `POST /v1/responses`.
-- Structured JSON output is requested via `text.format: { type: "json_object" }` (older `response_format` will 400).
-
-## Notifications
-Goal reminders command:
-- `python manage.py send_goal_notifications`
-
-## Production Notes
-This repo supports environment-based config via `.env` (loaded by `python-dotenv`).
-
-### Environment Variables
-Common variables (matches `.env.example`):
-- `DJANGO_ENV`: `development` or `production` (used to toggle sensible defaults)
-- `DJANGO_DEBUG`: `1` enables debug, `0` disables (must be `0` in production)
-- `DJANGO_SECRET_KEY`: Django secret key (required in production; never commit)
-- `DJANGO_ALLOWED_HOSTS`: comma-separated hosts (e.g. `terrierfit.com,www.terrierfit.com,127.0.0.1,localhost`)
-- `DJANGO_CSRF_TRUSTED_ORIGINS`: comma-separated origins including scheme (e.g. `https://terrierfit.com,https://www.terrierfit.com`)
-- `DJANGO_LOG_LEVEL`: `DEBUG`/`INFO`/`WARNING`/`ERROR`
-- `FOOD_PHOTO_MAX_UPLOAD_SIZE`: max upload bytes for food photo (default 5MB)
-- `DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE`: Django request body limit in bytes
-- `DJANGO_SECURE_PROXY_SSL_HEADER`: `1` if running behind a TLS-terminating proxy (Nginx/ALB) setting `X-Forwarded-Proto`
-- `DJANGO_SECURE_SSL_REDIRECT`: `1` to redirect HTTP->HTTPS at Django layer (often handled by Nginx instead)
-- `DJANGO_SECURE_COOKIES`: `1` to set secure cookies (recommended for HTTPS)
-- `DATABASE_URL`: database URL (recommended for production), e.g. `postgresql://user:pass@host:5432/dbname`
-- `DJANGO_DB_ENGINE`: database backend engine (alternative to `DATABASE_URL`)
-- `DJANGO_DB_NAME`: database name (required if using `DJANGO_DB_ENGINE` and not sqlite)
-- `DJANGO_DB_USER`: database user
-- `DJANGO_DB_PASSWORD`: database password
-- `DJANGO_DB_HOST`: database host
-- `DJANGO_DB_PORT`: database port
-- `USDA_API_KEY`: USDA FoodData Central key (optional)
-- `OPENAI_API_KEY`: OpenAI key for photo recognition (optional, required for recognition to work)
-- `OPENAI_MODEL`: model name for photo recognition (e.g. `gpt-4.1-mini`)
-- `DEFAULT_FROM_EMAIL`: email sender (from)
-- `DEFAULT_NOTIFICATION_EMAIL`: email recipient for notifications (to)
-
-Minimum required env for production:
-- `DJANGO_ENV=production`
-- `DJANGO_DEBUG=0`
-- `DJANGO_SECRET_KEY=...` (required)
-- `DJANGO_ALLOWED_HOSTS=your.domain,www.your.domain`
-- `DJANGO_CSRF_TRUSTED_ORIGINS=https://your.domain,https://www.your.domain`
-
-Static/media:
-- `collectstatic` outputs to `staticfiles/` (served by Nginx in a typical setup)
-- user uploads go to `media/`
-
-## Docker (Optional)
-This repo includes a minimal working Docker setup under `features/config/` (web + Postgres):
-
-Run:
-- `docker compose -f features/config/docker-compose.yml up --build`
-
-Then open:
-- `http://127.0.0.1:8000/`
-
-## Example Deployment (Nginx + systemd + Gunicorn)
-High-level:
-1. Install system deps: `python3`, `python3-pip`, `nginx`
-2. Create venv and `pip install -r requirements.txt`
-3. Configure `/home/ec2-user/fitness-manager/.env`
-4. Run:
-   - `python manage.py migrate --noinput`
-   - `python manage.py collectstatic --noinput`
-5. Run Gunicorn via systemd (bind to `127.0.0.1:8010`), and reverse-proxy via Nginx.
-6. Use Certbot to enable HTTPS.
-
-### Domain + Nginx (same EIP as other site)
-If you already have another domain on the same Elastic IP, you bind this app by adding another server block using `server_name terrierfit.com www.terrierfit.com` and proxying to a different upstream port (here: `8010`).
-
-Minimal Nginx shape (conceptual):
-```nginx
-server {
-  listen 443 ssl;
-  server_name terrierfit.com www.terrierfit.com;
-
-  location /static/ { alias /home/ec2-user/fitness-manager/staticfiles/; }
-  location /media/  { alias /home/ec2-user/fitness-manager/media/; }
-
-  location / {
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-Proto $scheme;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_pass http://127.0.0.1:8010;
-  }
-}
+```text
+apps/
+  workouts/
+  nutrition/
+  goals/
+  notifications/
+  profiles/
+fitness_manager/
+templates/
+features/config/
 ```
 
-After code updates on the server:
-1. `python manage.py migrate --noinput`
-2. `python manage.py collectstatic --noinput`
-3. `sudo systemctl restart fitness-manager`
-4. `sudo nginx -t && sudo systemctl reload nginx`
+## Local Setup
 
-### HTTPS (Certbot)
-One-time (example):
-- `sudo certbot --nginx -d terrierfit.com -d www.terrierfit.com`
+Prerequisite: Python 3.10+
 
-Renewal (typical):
-- `sudo certbot renew --dry-run`
+1. Create virtual environment
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate
+```
+
+2. Install dependencies
+
+```powershell
+pip install -r requirements.txt
+```
+
+3. Configure environment
+
+```powershell
+copy .env.example .env
+```
+
+Minimum local values in `.env`:
+
+```env
+DJANGO_DEBUG=1
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+4. Migrate and run
+
+```powershell
+python manage.py migrate
+python manage.py runserver
+```
+
+App URL: `http://127.0.0.1:8000/`
+
+## Optional API Integrations
+
+Set these in `.env`:
+
+- `USDA_API_KEY` for USDA food search
+- `OPENAI_API_KEY` for AI estimate from text/photo
+- `OPENAI_MODEL` (example: `gpt-4.1-mini`)
+
+If keys are missing, those features remain visible but may return no results / fallback behavior.
+
+## Testing
+
+Run all tests:
+
+```powershell
+python manage.py test
+```
+
+Run nutrition tests only:
+
+```powershell
+python manage.py test apps.nutrition
+```
+
+Static checks:
+
+```powershell
+python manage.py check
+```
+
+## Production Deployment (Current Pattern)
+
+Target runtime:
+
+- Gunicorn on `127.0.0.1:8010`
+- Nginx reverse proxy
+- systemd service: `fitness-manager`
+- Static files served from `staticfiles/`
+
+Typical update steps on server:
+
+```bash
+python manage.py migrate --noinput
+python manage.py collectstatic --noinput
+sudo systemctl restart fitness-manager
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+## Security and Data Scope
+
+- Auth required for all core user pages
+- Data access is scoped by `request.user` in views and queries
+- No cross-user read/write should be possible under normal flows
+
+## Known Limitations (V1)
+
+- No dedicated admin analytics dashboard yet
+- USDA/OpenAI features depend on API key configuration
+- Some summary targets are currently fixed defaults and not fully personalized
+
+## Roadmap (Post-Midterm)
+
+- Improve personalization of nutrition and workout recommendations
+- Add richer charts for trend analysis
+- Add better onboarding and inline guidance
+- Expand test coverage for UI workflows
+
+## License
+
+Internal academic/project use unless otherwise specified.

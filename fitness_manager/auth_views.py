@@ -42,7 +42,8 @@ def signup(request):
             profile.height_cm = form.cleaned_data.get("height_cm")
             profile.weight_kg = form.cleaned_data.get("weight_kg")
             profile.save()
-            login(request, user)
+            # Multiple auth backends are configured; set backend explicitly for session login.
+            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("workouts:home")
         messages.error(request, "Sign up failed. Please review the errors below (password rules apply).")
     else:

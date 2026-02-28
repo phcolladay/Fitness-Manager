@@ -6,7 +6,33 @@
   <div class="page-head">
     <div>
       <h1 class="title">Add Food</h1>
-      <p class="subtitle">Manual entry, USDA data, or photo recognition.</p>
+      <p class="subtitle">Pick the easiest way to log food, then review and save.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Back to Nutrition</a>
+    </div>
+  </div>
+
+  <div class="panel panel-gap">
+    <div class="panel-inner">
+      <div class="section-head">
+        <h2 class="section-title">Quick Add Options</h2>
+        <span class="muted section-meta">Start with search, text, or photo</span>
+      </div>
+      <div class="api-tools">
+        <a class="api-tool" href="{% url 'nutrition:lookup' %}">
+          <span class="api-tool-title">Search USDA Foods</span>
+          <span class="api-tool-meta">Find foods in FoodData Central and auto-fill nutrition values.</span>
+        </a>
+        <a class="api-tool" href="{% url 'nutrition:estimate' %}">
+          <span class="api-tool-title">Estimate From Description</span>
+          <span class="api-tool-meta">Describe your meal to get a quick calorie and macro estimate.</span>
+        </a>
+        <a class="api-tool" href="{% url 'nutrition:photo_upload' %}">
+          <span class="api-tool-title">Estimate From Photo</span>
+          <span class="api-tool-meta">Upload a meal photo and generate editable nutrition estimates.</span>
+        </a>
+      </div>
     </div>
   </div>
 

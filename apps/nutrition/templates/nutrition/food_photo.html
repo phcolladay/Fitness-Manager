@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Food Photo | Fitness Manager{% endblock %}
+{% block title %}Estimate From Photo | Fitness Manager{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <div>
-      <h1 class="title">Photo Recognition</h1>
-      <p class="subtitle">Upload a meal photo. We extract structured nutrition estimates.</p>
+      <h1 class="title">Estimate From Photo</h1>
+      <p class="subtitle">Upload a meal photo to generate nutrition estimates you can edit.</p>
     </div>
     <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Back</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Back to Add Food</a>
     </div>
   </div>
 
   <div class="panel">
     <div class="panel-inner">
-      <p class="muted" style="margin-top: 0">Requires <code>OPENAI_API_KEY</code> in your environment. You can edit estimates before saving.</p>
+      <p class="muted" style="margin-top: 0">Photo estimate requires <code>OPENAI_API_KEY</code> on this server. You can edit values before saving.</p>
       <form method="post" enctype="multipart/form-data" data-loading="Analyzing photo...">
         {% csrf_token %}
         {{ form.as_p }}

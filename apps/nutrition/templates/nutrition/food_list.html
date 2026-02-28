@@ -6,13 +6,10 @@
   <div class="page-head">
     <div>
       <h1 class="title">Nutrition</h1>
-      <p class="subtitle">Track calories and macros. Keep it consistent.</p>
+      <p class="subtitle">Log your meals and keep calories and macros on track.</p>
     </div>
     <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:lookup' %}">USDA API Lookup</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:estimate' %}">Ingredient Estimate</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}">Nutrition Summary</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:photo_upload' %}">Photo recognition</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}">View Summary</a>
       <a class="btn" href="{% url 'nutrition:add' %}">Add food</a>
     </div>
   </div>
@@ -49,7 +46,7 @@
           </tbody>
         </table>
       {% else %}
-        <p class="muted">No food entries yet.</p>
+        <p class="muted">No meals logged yet. Add your first food entry.</p>
       {% endif %}
     </div>
   </div>

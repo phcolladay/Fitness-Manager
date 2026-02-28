@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}Ingredient Estimate | Fitness Manager{% endblock %}
+{% block title %}Estimate From Description | Fitness Manager{% endblock %}
 
 {% block content %}
   <div class="page-head">
     <div>
-      <h1 class="title">Ingredient Estimate</h1>
-      <p class="subtitle">Describe a meal with no label and get estimated calories/macros.</p>
+      <h1 class="title">Estimate From Description</h1>
+      <p class="subtitle">No nutrition label? Describe your meal to get estimated calories and macros.</p>
     </div>
     <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Back</a>
+      <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Back to Add Food</a>
     </div>
   </div>
 
@@ -19,8 +19,8 @@
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
-          <button class="btn" type="submit">Estimate Nutrition</button>
-          <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Manual entry</a>
+          <button class="btn" type="submit">Get Estimate</button>
+          <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Enter manually</a>
         </div>
         <p class="loading-note">Estimating nutrition...</p>
       </form>

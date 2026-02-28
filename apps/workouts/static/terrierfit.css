@@ -71,7 +71,7 @@ a:hover { text-decoration: none; }
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  min-width: 220px;
+  min-width: 180px;
 }
 .brand img {
   width: 34px;
@@ -113,6 +113,7 @@ a:hover { text-decoration: none; }
   margin-left: auto;
   width: 44px;
   height: 40px;
+  flex-direction: column;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.08);
@@ -135,16 +136,25 @@ a:hover { text-decoration: none; }
   flex: 1;
   align-items: center;
   gap: 14px;
+  min-width: 0;
 }
 
 .nav {
   display: flex;
   flex: 1;
-  gap: 10px;
+  min-width: 0;
+  flex-wrap: nowrap;
+  gap: 8px;
   align-items: center;
   justify-content: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
 }
+.nav::-webkit-scrollbar { display: none; }
 .nav a {
+  display: inline-flex;
+  align-items: center;
   color: rgba(255, 255, 255, 0.82);
   padding: 9px 10px;
   border-radius: 999px;
@@ -154,6 +164,7 @@ a:hover { text-decoration: none; }
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.1px;
+  white-space: nowrap;
 }
 .nav a:hover {
   background: rgba(255, 255, 255, 0.08);
@@ -166,7 +177,7 @@ a:hover { text-decoration: none; }
   align-items: center;
   gap: 10px;
   justify-content: flex-end;
-  min-width: 240px;
+  min-width: 180px;
 }
 .pill {
   display: inline-flex;
@@ -226,6 +237,14 @@ a:hover { text-decoration: none; }
   border-color: rgba(255, 255, 255, 0.14);
 }
 .topbar .btn-ghost:hover { background: rgba(255, 255, 255, 0.10); }
+
+/* Page headers also sit on dark background, so ghost buttons need light contrast there too. */
+.page-head .btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.90);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.page-head .btn-ghost:hover { background: rgba(255, 255, 255, 0.14); }
 
 main {
   max-width: var(--container);
@@ -444,6 +463,28 @@ form.is-loading .loading-note {
   font-size: 13px;
 }
 
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+}
+
+.section-meta {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.panel-gap {
+  margin-bottom: 14px;
+}
+
 .divider {
   height: 1px;
   margin: 14px 0;
@@ -504,6 +545,7 @@ footer {
     border-radius: 12px;
     padding: 12px 12px;
     text-align: center;
+    white-space: normal;
   }
   .userbox {
     min-width: 0;
@@ -514,7 +556,7 @@ footer {
   }
   .userbox .btn { flex: 1 1 140px; }
 
-  .nav-shell[open] .nav-panel { display: flex; }
+  .nav-shell[open] > .nav-panel { display: flex; }
 
   .title { font-size: 28px; }
   .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
