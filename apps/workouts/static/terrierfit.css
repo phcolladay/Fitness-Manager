@@ -237,6 +237,14 @@ a:hover { text-decoration: none; }
 }
 .topbar .btn-ghost:hover { background: rgba(255, 255, 255, 0.10); }
 
+/* Page headers also sit on dark background, so ghost buttons need light contrast there too. */
+.page-head .btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.90);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.page-head .btn-ghost:hover { background: rgba(255, 255, 255, 0.14); }
+
 main {
   max-width: var(--container);
   margin: 0 auto;
