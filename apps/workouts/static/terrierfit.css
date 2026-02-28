@@ -113,6 +113,7 @@ a:hover { text-decoration: none; }
   margin-left: auto;
   width: 44px;
   height: 40px;
+  flex-direction: column;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.08);
@@ -136,6 +137,11 @@ a:hover { text-decoration: none; }
   align-items: center;
   gap: 14px;
   min-width: 0;
+}
+
+/* Keep desktop nav visible even when <details> has no open attribute. */
+.nav-shell:not([open]) > .nav-panel {
+  display: flex;
 }
 
 .nav {
@@ -532,6 +538,9 @@ footer {
     border-radius: 16px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
   }
+  .nav-shell:not([open]) > .nav-panel {
+    display: none;
+  }
   .nav {
     justify-content: flex-start;
     display: grid;
@@ -555,7 +564,7 @@ footer {
   }
   .userbox .btn { flex: 1 1 140px; }
 
-  .nav-shell[open] .nav-panel { display: flex; }
+  .nav-shell[open] > .nav-panel { display: flex; }
 
   .title { font-size: 28px; }
   .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
