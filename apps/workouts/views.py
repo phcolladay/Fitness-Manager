@@ -1,10 +1,12 @@
 from datetime import date, timedelta
+from urllib.parse import urlencode
 
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.goals.models import Goal
@@ -14,6 +16,7 @@ from apps.profiles.models import UserProfile
 
 from .forms import ExerciseEntryForm, WorkoutForm, WorkoutPlanForm
 from .models import ExerciseEntry, ExerciseLibrary, Workout, WorkoutPlan
+from .ai import estimate_exercise_calories_ai
 from .utils import classify_exercise, estimate_calories
 
 
@@ -30,6 +33,43 @@ def _workout_period(period: str):
     prev_end = start - timedelta(days=1)
     prev_start = prev_end - timedelta(days=days - 1)
     return period, start, today, prev_start, prev_end
+
+
+def _populate_classification(exercise: ExerciseEntry) -> None:
+    if not exercise.category or not exercise.muscle_group:
+        exercise.category, exercise.muscle_group = classify_exercise(exercise.exercise_name)
+        exercise.auto_classified = True
+
+
+def _estimate_calories_with_ai_or_fallback(*, exercise: ExerciseEntry, user) -> bool:
+    if exercise.calories_burned or not exercise.duration_minutes:
+        return False
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    weight = float(profile.weight_kg) if profile.weight_kg is not None else None
+    ai_estimate = estimate_exercise_calories_ai(
+        exercise_name=exercise.exercise_name,
+        duration_minutes=int(exercise.duration_minutes),
+        category=exercise.category or "",
+        muscle_group=exercise.muscle_group or "",
+        weight_kg=weight,
+    )
+    if ai_estimate is not None:
+        exercise.calories_burned = ai_estimate
+        return True
+    exercise.calories_burned = estimate_calories(exercise.category, exercise.duration_minutes)
+    return False
+
+
+def _exercise_prefill_query(data: dict) -> str:
+    params = {}
+    for key in ["exercise_name", "category", "muscle_group", "duration_minutes", "calories_burned"]:
+        value = data.get(key)
+        if value is None:
+            continue
+        if key in {"duration_minutes", "calories_burned"} and value == "":
+            continue
+        params[key] = value
+    return urlencode(params)
 
 
 @login_required
@@ -163,24 +203,51 @@ def workout_detail(request, workout_id: int):
 def exercise_add(request, workout_id: int):
     workout = get_object_or_404(Workout, id=workout_id, user=request.user)
     if request.method == "POST":
+        if "ai_estimate" in request.POST:
+            form = ExerciseEntryForm(request.POST)
+            if form.is_valid():
+                estimate_candidate = form.save(commit=False)
+                _populate_classification(estimate_candidate)
+                ai_used = _estimate_calories_with_ai_or_fallback(exercise=estimate_candidate, user=request.user)
+                prefill = {
+                    "exercise_name": estimate_candidate.exercise_name,
+                    "category": estimate_candidate.category or "",
+                    "muscle_group": estimate_candidate.muscle_group or "",
+                    "duration_minutes": estimate_candidate.duration_minutes,
+                    "calories_burned": estimate_candidate.calories_burned,
+                }
+                if ai_used:
+                    messages.success(request, "AI estimate added to calories. You can edit before saving.")
+                else:
+                    messages.info(request, "AI unavailable. Used standard calorie estimate.")
+                query = _exercise_prefill_query(prefill)
+                url = reverse("workouts:exercise_add", kwargs={"workout_id": workout.id})
+                if query:
+                    url = f"{url}?{query}"
+                return redirect(url)
+            else:
+                messages.error(request, "Please fix form errors before requesting AI estimate.")
+                return render(
+                    request,
+                    "workouts/exercise_form.html",
+                    {"form": form, "workout": workout},
+                )
+
         form = ExerciseEntryForm(request.POST)
         if form.is_valid():
             exercise = form.save(commit=False)
-            if not exercise.category or not exercise.muscle_group:
-                exercise.category, exercise.muscle_group = classify_exercise(
-                    exercise.exercise_name
-                )
-                exercise.auto_classified = True
-            if not exercise.calories_burned and exercise.duration_minutes:
-                exercise.calories_burned = estimate_calories(
-                    exercise.category, exercise.duration_minutes
-                )
+            _populate_classification(exercise)
+            _estimate_calories_with_ai_or_fallback(exercise=exercise, user=request.user)
             exercise.workout = workout
             exercise.user = request.user
             exercise.save()
             return redirect("workouts:detail", workout_id=workout.id)
     else:
-        form = ExerciseEntryForm()
+        initial = {}
+        for key in ["exercise_name", "category", "muscle_group", "duration_minutes", "calories_burned"]:
+            if key in request.GET:
+                initial[key] = request.GET.get(key)
+        form = ExerciseEntryForm(initial=initial)
     return render(
         request,
         "workouts/exercise_form.html",
@@ -193,21 +260,52 @@ def exercise_edit(request, workout_id: int, exercise_id: int):
     workout = get_object_or_404(Workout, id=workout_id, user=request.user)
     exercise = get_object_or_404(ExerciseEntry, id=exercise_id, workout=workout, user=request.user)
     if request.method == "POST":
+        if "ai_estimate" in request.POST:
+            form = ExerciseEntryForm(request.POST, instance=exercise)
+            if form.is_valid():
+                estimate_candidate = form.save(commit=False)
+                _populate_classification(estimate_candidate)
+                ai_used = _estimate_calories_with_ai_or_fallback(exercise=estimate_candidate, user=request.user)
+                prefill = {
+                    "exercise_name": estimate_candidate.exercise_name,
+                    "category": estimate_candidate.category or "",
+                    "muscle_group": estimate_candidate.muscle_group or "",
+                    "duration_minutes": estimate_candidate.duration_minutes,
+                    "calories_burned": estimate_candidate.calories_burned,
+                }
+                if ai_used:
+                    messages.success(request, "AI estimate added to calories. You can edit before saving.")
+                else:
+                    messages.info(request, "AI unavailable. Used standard calorie estimate.")
+                query = _exercise_prefill_query(prefill)
+                url = reverse("workouts:exercise_edit", kwargs={"workout_id": workout.id, "exercise_id": exercise.id})
+                if query:
+                    url = f"{url}?{query}"
+                return redirect(url)
+            else:
+                messages.error(request, "Please fix form errors before requesting AI estimate.")
+                return render(
+                    request,
+                    "workouts/exercise_form.html",
+                    {"form": form, "workout": workout, "mode": "edit"},
+                )
+
         form = ExerciseEntryForm(request.POST, instance=exercise)
         if form.is_valid():
             updated = form.save(commit=False)
-            if not updated.category or not updated.muscle_group:
-                updated.category, updated.muscle_group = classify_exercise(updated.exercise_name)
-                updated.auto_classified = True
-            if not updated.calories_burned and updated.duration_minutes:
-                updated.calories_burned = estimate_calories(updated.category, updated.duration_minutes)
+            _populate_classification(updated)
+            _estimate_calories_with_ai_or_fallback(exercise=updated, user=request.user)
             updated.user = request.user
             updated.workout = workout
             updated.save()
             messages.success(request, "Exercise updated.")
             return redirect("workouts:detail", workout_id=workout.id)
     else:
-        form = ExerciseEntryForm(instance=exercise)
+        initial = {}
+        for key in ["exercise_name", "category", "muscle_group", "duration_minutes", "calories_burned"]:
+            if key in request.GET:
+                initial[key] = request.GET.get(key)
+        form = ExerciseEntryForm(instance=exercise, initial=initial)
     return render(request, "workouts/exercise_form.html", {"form": form, "workout": workout, "mode": "edit"})
 
 

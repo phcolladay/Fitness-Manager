@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.test import RequestFactory
 from django.http import Http404
 from django.db.models import Q
+from urllib.parse import parse_qs, urlparse
+from unittest.mock import patch
 
 from .models import ExerciseEntry, ExerciseLibrary, Workout
 from .views import workout_detail
@@ -62,3 +64,62 @@ class ExerciseLibraryTests(TestCase):
             | Q(instructions__icontains=q)
         )
         self.assertTrue(results.filter(name="Farmer Carry").exists())
+
+
+class ExerciseAIEstimateFlowTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username="aiuser", password="pw")
+        self.client.login(username="aiuser", password="pw")
+        self.workout = Workout.objects.create(name="AI Session", user=self.user)
+
+    @patch("apps.workouts.views.estimate_exercise_calories_ai", return_value=321.5)
+    def test_ai_estimate_button_prefills_calories_without_saving(self, _ai):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        response = self.client.post(
+            url,
+            {
+                "exercise_name": "Jump Rope",
+                "category": "hiit",
+                "muscle_group": "full body",
+                "duration_minutes": 30,
+                "calories_burned": "",
+                "ai_estimate": "1",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ExerciseEntry.objects.count(), 0)
+        query = parse_qs(urlparse(response["Location"]).query)
+        self.assertEqual(query.get("calories_burned"), ["321.5"])
+
+    @patch("apps.workouts.views.estimate_exercise_calories_ai", return_value=180.25)
+    def test_save_uses_ai_when_calories_missing(self, _ai):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        response = self.client.post(
+            url,
+            {
+                "exercise_name": "Jogging",
+                "category": "cardio",
+                "muscle_group": "legs",
+                "duration_minutes": 25,
+                "calories_burned": "",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        entry = ExerciseEntry.objects.get(workout=self.workout)
+        self.assertEqual(float(entry.calories_burned), 180.25)
+
+    @patch("apps.workouts.views.estimate_exercise_calories_ai", return_value=None)
+    def test_save_falls_back_when_ai_unavailable(self, _ai):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        self.client.post(
+            url,
+            {
+                "exercise_name": "Jogging",
+                "category": "cardio",
+                "muscle_group": "legs",
+                "duration_minutes": 10,
+                "calories_burned": "",
+            },
+        )
+        entry = ExerciseEntry.objects.get(workout=self.workout)
+        self.assertEqual(float(entry.calories_burned), 80.0)

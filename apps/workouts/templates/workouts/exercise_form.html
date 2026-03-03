@@ -12,10 +12,14 @@
 
   <div class="panel">
     <div class="panel-inner">
+      <p class="hint">
+        Leave calories empty and click <strong>AI Estimate Calories</strong> to auto-fill, then review before saving.
+      </p>
       <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
+          <button class="btn btn-ghost" type="submit" name="ai_estimate" value="1">AI Estimate Calories</button>
           <button class="btn" type="submit">Save</button>
           <a class="btn btn-ghost" href="{% url 'workouts:detail' workout.id %}">Back</a>
         </div>
