@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 from urllib.parse import urlencode
 from datetime import datetime, time, timedelta
 
@@ -35,10 +36,44 @@ def _period_range(period: str):
     return period, start, today, start_dt, end_dt
 
 
+def _normalize_micronutrients(raw: object) -> dict[str, float]:
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            return {}
+    if not isinstance(raw, dict):
+        return {}
+    normalized = {}
+    for key, value in raw.items():
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            continue
+        if numeric < 0:
+            continue
+        normalized[str(key)] = numeric
+    return normalized
+
+
 def _prefill_add_url(*, source: str, result: dict, default_name: str) -> str:
+    micronutrients = _normalize_micronutrients(result.get("micronutrients"))
+    for key in ("fiber_g", "sodium_mg", "iron_mg", "calcium_mg", "vitamin_c_mg", "potassium_mg"):
+        value = result.get(key)
+        if value is None:
+            continue
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            continue
+        if numeric < 0:
+            continue
+        micronutrients[key] = numeric
+
     params = {
         "source": source,
         "name": result.get("name", default_name),
+        "brand": result.get("brand", "") or "",
         "calories": result.get("calories", 0) or 0,
         "protein_g": result.get("protein_g", 0) or 0,
         "carbs_g": result.get("carbs_g", 0) or 0,
@@ -47,6 +82,8 @@ def _prefill_add_url(*, source: str, result: dict, default_name: str) -> str:
         "sugar_g": result.get("sugar_g", 0) or 0,
         "sodium_mg": result.get("sodium_mg", 0) or 0,
     }
+    if micronutrients:
+        params["micronutrients"] = json.dumps(micronutrients, ensure_ascii=False, separators=(",", ":"))
     return f"{reverse('nutrition:add')}?{urlencode(params)}"
 
 
@@ -70,9 +107,15 @@ def food_add(request):
         "fiber_g",
         "sugar_g",
         "sodium_mg",
+        "micronutrients",
     ]:
         if key in request.GET:
-            initial[key] = request.GET.get(key)
+            value = request.GET.get(key)
+            if key == "micronutrients":
+                parsed = _normalize_micronutrients(value)
+                initial[key] = parsed if parsed else value
+            else:
+                initial[key] = value
     if request.method == "POST":
         form = FoodEntryForm(request.POST)
         if form.is_valid():
@@ -125,8 +168,26 @@ def food_lookup(request):
     form = FoodLookupForm(request.GET or None)
     if form.is_valid():
         results = search_usda_foods(form.cleaned_data["query"])
+        for result in results:
+            nutrients = result.get("nutrients") or {}
+            result["use_url"] = _prefill_add_url(
+                source="usda",
+                result={
+                    "name": result.get("description", ""),
+                    "brand": result.get("brand", ""),
+                    "calories": nutrients.get("calories", 0),
+                    "protein_g": nutrients.get("protein_g", 0),
+                    "carbs_g": nutrients.get("carbs_g", 0),
+                    "fat_g": nutrients.get("fat_g", 0),
+                    "fiber_g": nutrients.get("fiber_g", 0),
+                    "sugar_g": nutrients.get("sugar_g", 0),
+                    "sodium_mg": nutrients.get("sodium_mg", 0),
+                    "micronutrients": nutrients.get("micronutrients", {}),
+                },
+                default_name=result.get("description", "USDA food"),
+            )
         if not results:
-            messages.info(request, "No USDA results found or API key missing.")
+            messages.info(request, "No results found right now. Please try again later or add food manually.")
     return render(
         request,
         "nutrition/food_lookup.html",
@@ -170,6 +231,10 @@ def food_summary(request):
                     micros_total[k] = float(micros_total.get(k, 0)) + float(v)
                 except (TypeError, ValueError):
                     continue
+    if "fiber_g" not in micros_total and fiber:
+        micros_total["fiber_g"] = float(fiber)
+    if "sodium_mg" not in micros_total and sodium:
+        micros_total["sodium_mg"] = float(sodium)
 
     macro_recommended = {"protein_g": 50, "carbs_g": 275, "fat_g": 78}
     micro_recommended = {"fiber_g": 28, "sodium_mg": 2300, "iron_mg": 18, "calcium_mg": 1300, "vitamin_c_mg": 90}

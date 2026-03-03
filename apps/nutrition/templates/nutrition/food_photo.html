@@ -15,7 +15,7 @@
 
   <div class="panel">
     <div class="panel-inner">
-      <p class="muted" style="margin-top: 0">Photo estimate requires <code>OPENAI_API_KEY</code> on this server. You can edit values before saving.</p>
+      <p class="muted" style="margin-top: 0">Photo estimate may be temporarily unavailable. You can still edit values before saving.</p>
       <form method="post" enctype="multipart/form-data" data-loading="Analyzing photo...">
         {% csrf_token %}
         {{ form.as_p }}
