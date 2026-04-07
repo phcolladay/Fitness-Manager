@@ -1,53 +1,56 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Nutrition | Fitness Manager{% endblock %}
+{% block title %}Nutrition | FitMan{% endblock %}
+{% block page_title %}Nutrition{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Nutrition</h1>
-      <p class="subtitle">Log your meals and keep calories and macros on track.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}">View Summary</a>
-      <a class="btn" href="{% url 'nutrition:add' %}">Add food</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Log your meals and keep calories and macros on track.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:water_list' %}">Water</a>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:summary' %}">View Summary</a>
+    <a class="fm-btn fm-btn-primary" href="{% url 'nutrition:add' %}">Add Food</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      {% if foods %}
-        <table>
+  <section class="fm-card">
+    {% if foods %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Food</th>
               <th>Calories</th>
               <th>Macros (P/C/F)</th>
               <th>Time</th>
-              <th></th>
+              <th style="text-align:right">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for food in foods %}
               <tr>
-                <td style="font-weight:900">{{ food.name }}</td>
-                <td class="muted">{{ food.calories }}</td>
-                <td class="muted">{{ food.protein_g }}/{{ food.carbs_g }}/{{ food.fat_g }}</td>
-                <td class="muted">{{ food.consumed_at|date:"Y-m-d H:i" }}</td>
+                <td class="fm-strong">{{ food.name }}</td>
+                <td class="fm-muted">{{ food.calories }}</td>
+                <td class="fm-muted">{{ food.protein_g }}/{{ food.carbs_g }}/{{ food.fat_g }}</td>
+                <td class="fm-muted">{{ food.consumed_at|date:"Y-m-d H:i" }}</td>
                 <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{% url 'nutrition:edit' food.id %}">Edit</a>
-                  <form method="post" action="{% url 'nutrition:delete' food.id %}" style="display:inline">
-                    {% csrf_token %}
-                    <button class="btn btn-ghost" type="submit">Delete</button>
-                  </form>
+                  <div class="fm-row-actions">
+                    <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'nutrition:edit' food.id %}">Edit</a>
+                    <form method="post" action="{% url 'nutrition:delete' food.id %}" style="display:inline">
+                      {% csrf_token %}
+                      <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No meals logged yet. Add your first food entry.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No meals logged yet</div>
+        <div class="fm-empty-text">Tap “Add Food” to log your first entry. You can search USDA, describe a meal, or upload a photo.</div>
+        <a class="fm-btn fm-btn-primary fm-mt-4" href="{% url 'nutrition:add' %}">Add Food</a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}
