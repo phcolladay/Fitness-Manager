@@ -92,8 +92,9 @@ def guest_login(request):
     return redirect("workouts:home")
 
 
-@require_POST
 def logout_view(request):
+    if request.method != "POST":
+        return redirect("login")
     user = request.user if request.user.is_authenticated else None
     username_field = getattr(get_user_model(), "USERNAME_FIELD", "username")
     user_identifier = getattr(user, username_field, "") if user else ""

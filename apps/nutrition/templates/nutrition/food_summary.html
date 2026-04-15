@@ -81,18 +81,11 @@
               </tr>
             </thead>
             <tbody>
-              {% for key, value in micros_total.items %}
+              {% for item in micros_display %}
                 <tr>
-                  <td>{{ key }}</td>
-                  <td>{{ value|floatformat:2 }}</td>
-                  <td>
-                    {% if key == "fiber_g" %}{{ micro_recommended.fiber_g }}
-                    {% elif key == "sodium_mg" %}{{ micro_recommended.sodium_mg }}
-                    {% elif key == "iron_mg" %}{{ micro_recommended.iron_mg }}
-                    {% elif key == "calcium_mg" %}{{ micro_recommended.calcium_mg }}
-                    {% elif key == "vitamin_c_mg" %}{{ micro_recommended.vitamin_c_mg }}
-                    {% else %}-{% endif %}
-                  </td>
+                  <td>{{ item.label }}</td>
+                  <td>{{ item.value|floatformat:2 }}</td>
+                  <td>{% if item.reference %}{{ item.reference }}{% else %}-{% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>

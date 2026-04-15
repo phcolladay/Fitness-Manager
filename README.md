@@ -1,7 +1,5 @@
 # TerrierFit (Fitness Manager)
 
-Midterm Presentation - Version 1
-
 TerrierFit is a Django-based fitness tracking app focused on daily consistency: workouts, nutrition, hydration, goals, and progress visibility in one place.
 
 ## Project Highlights

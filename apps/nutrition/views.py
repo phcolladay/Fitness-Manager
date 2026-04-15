@@ -222,6 +222,19 @@ def food_summary(request):
         or 0
     )
 
+    _micro_labels = {
+        "fiber_g": "Fiber (g)",
+        "sodium_mg": "Sodium (mg)",
+        "iron_mg": "Iron (mg)",
+        "calcium_mg": "Calcium (mg)",
+        "vitamin_c_mg": "Vitamin C (mg)",
+        "potassium_mg": "Potassium (mg)",
+        "vitamin_a_mcg": "Vitamin A (mcg)",
+        "vitamin_d_mcg": "Vitamin D (mcg)",
+        "zinc_mg": "Zinc (mg)",
+        "magnesium_mg": "Magnesium (mg)",
+    }
+
     micros_total = {}
     for item in foods:
         data = item.micronutrients or {}
@@ -235,6 +248,12 @@ def food_summary(request):
         micros_total["fiber_g"] = float(fiber)
     if "sodium_mg" not in micros_total and sodium:
         micros_total["sodium_mg"] = float(sodium)
+
+    micros_display = []
+    for key, value in micros_total.items():
+        label = _micro_labels.get(key, key.replace("_", " ").title())
+        ref = micro_recommended.get(key)
+        micros_display.append({"label": label, "value": value, "reference": ref})
 
     macro_recommended = {"protein_g": 50, "carbs_g": 275, "fat_g": 78}
     micro_recommended = {"fiber_g": 28, "sodium_mg": 2300, "iron_mg": 18, "calcium_mg": 1300, "vitamin_c_mg": 90}
@@ -275,6 +294,7 @@ def food_summary(request):
             "micro_recommended": micro_recommended,
             "macro_pct": macro_pct,
             "micros_total": micros_total,
+            "micros_display": micros_display,
             "micro_pct": micro_pct,
         },
     )
