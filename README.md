@@ -1,305 +1,241 @@
-# TerrierFit (Fitness Manager)
+# TerrierFit
 
-TerrierFit is a Django-based fitness tracking app focused on daily consistency: workouts, nutrition, hydration, goals, and progress visibility in one place.
+TerrierFit is a production-oriented Django fitness management application for workout tracking, nutrition logging, hydration monitoring, body metrics, goal management, notifications, and account recovery. The application is implemented as a server-rendered Django monolith with authenticated, per-user data isolation across all primary workflows.
 
-## Project Highlights
+## Table of Contents
 
-- Unified dashboard for calories in/out, net calories, hydration progress, active goals, workouts, and notifications
-- Workout logging with exercise-level details and calorie burn tracking
-- Nutrition logging with multiple input modes:
-  - Manual entry
-  - USDA food search (FoodData Central)
-  - AI estimate from meal description
-  - AI estimate from meal photo
-- Water intake tracking with period summaries
-- Body metrics tracking (weight and measurements)
-- Goal tracking with reminders
-- User authentication and per-user data isolation across all features
+- [Project Overview](#project-overview)
+- [Core Capabilities](#core-capabilities)
+- [Technical Stack](#technical-stack)
+- [System Architecture](#system-architecture)
+- [Repository Layout](#repository-layout)
+- [Configuration](#configuration)
+- [Local Development](#local-development)
+- [Testing and Quality Gates](#testing-and-quality-gates)
+- [External Integrations](#external-integrations)
+- [Deployment](#deployment)
+- [Security Considerations](#security-considerations)
+- [Known Limitations](#known-limitations)
 
-## Demo Flow (Recommended for Presentation)
+## Project Overview
 
-1. Open Dashboard to show daily snapshot
-2. Go to Nutrition -> Add Food -> Quick Add Options
-3. Show USDA lookup and AI estimate entry paths
-4. Show Nutrition Summary (day/week/month)
-5. Show Workouts and Body Metrics trends
-6. Show Goals and Notifications
+TerrierFit consolidates the daily fitness workflows required by an individual user into a single web application. It supports account registration, email-based password reset, workout and exercise tracking, nutrition and water intake logging, body measurement history, goal progress calculation, and notification delivery.
 
-## Tech Stack
+The application is designed for straightforward deployment on a single virtual server. It uses Django templates and custom CSS for the user interface, the Django ORM for persistence, and optional third-party APIs for enhanced nutrition and calorie-estimation features.
+
+## Core Capabilities
+
+- Email-first registration with optional username entry.
+- Login with either email address or username.
+- Password reset through configured SMTP email delivery.
+- Authenticated dashboard with calories in, calories out, net calories, hydration, workouts, active goals, and notifications.
+- Workout sessions, exercise entries, exercise library, and workout plans.
+- Nutrition entries through manual input, USDA lookup, text-based AI estimation, and photo-based AI estimation.
+- Water intake tracking with milliliter and fluid-ounce input.
+- Body profile and body-measurement history.
+- Goal tracking for calories, net calories, macros, hydration, workout minutes, and workouts per week.
+- In-app and email notification records.
+- Demo data seeding for repeatable demonstration and QA workflows.
+- Unit, regression, coverage, and Playwright browser-level tests.
+
+## Technical Stack
 
 | Layer | Technology |
-|-------|------------|
-| Backend | Django 4.2 (Python 3.10+) |
-| Frontend | Django Templates + custom CSS (server-side rendering) |
-| Database | SQLite (local dev) / PostgreSQL 16 (production) |
-| AI Integration | OpenAI Responses API (`gpt-4o-mini` / configurable) |
-| External Data | USDA FoodData Central API |
-| Email | Commercial SMTP (password reset + notifications) |
-| Deployment | Gunicorn + Nginx + systemd (EC2) or Docker Compose |
+| --- | --- |
+| Backend | Django 4.2, Python 3.10+ |
+| Frontend | Django templates, custom CSS |
+| Database | SQLite for local development, PostgreSQL for production |
+| Runtime | Gunicorn, Nginx, systemd |
+| Email | Django SMTP backend, commercial mailbox provider |
+| AI features | OpenAI Responses API |
+| Nutrition data | USDA FoodData Central API |
+| Test automation | Django test runner, Coverage.py, Playwright |
+| CI | GitHub Actions |
 
-Key Python dependencies: `Django`, `Pillow`, `requests`, `psycopg2-binary`, `gunicorn`.
+Primary Python dependencies are listed in `requirements.txt`. Development and QA dependencies are listed in `requirements-dev.txt`.
 
-## Architecture Overview
+## System Architecture
 
-TerrierFit is a **monolithic Django application** composed of five feature apps plus a project-level package for settings and authentication. All pages are rendered server-side; there is no separate SPA layer or JSON REST API.
+TerrierFit is a modular Django monolith. Feature boundaries are represented by Django apps, while routing, settings, authentication views, and shared authentication forms live in the project package.
 
 ```text
-                    ┌─────────────────────────────────────────┐
-                    │          Django Templates (HTML)        │
-                    └──────────────────┬──────────────────────┘
-                                       │
-                    ┌──────────────────┴──────────────────────┐
-                    │        fitness_manager/ (project)        │
-                    │  settings · urls · auth_views · email    │
-                    └──────────────────┬──────────────────────┘
-                                       │
-          ┌──────────┬─────────────────┼─────────────────┬──────────────┐
-          │          │                 │                 │              │
-   ┌──────┴────┐ ┌───┴────┐ ┌─────────┴──────┐ ┌─────────┴──────┐ ┌─────┴──────┐
-   │ workouts  │ │ goals  │ │   nutrition    │ │ notifications  │ │  profiles  │
-   │           │ │        │ │                │ │                │ │            │
-   │ Workout   │ │ Goal   │ │ FoodEntry      │ │ Notification   │ │ UserProfile│
-   │ Exercise  │ │        │ │ WaterEntry     │ │                │ │ BodyMeasur.│
-   │ Plan      │ │        │ │ FoodPhoto      │ │                │ │            │
-   │ Library   │ │        │ │                │ │                │ │            │
-   └─────┬─────┘ └───┬────┘ └───────┬────────┘ └───────┬────────┘ └─────┬──────┘
-         │           │              │                  │                │
-         └───────────┴──────────────┴──────────────────┴────────────────┘
-                                       │
-                    ┌──────────────────┴──────────────────────┐
-                    │            Django ORM (SQL)              │
-                    └──────────────────┬──────────────────────┘
-                                       │
-                         ┌─────────────┴──────────────┐
-                         │ SQLite (dev) / PostgreSQL  │
-                         └────────────────────────────┘
+Browser
+  |
+  v
+Django templates and static assets
+  |
+  v
+fitness_manager/
+  settings.py
+  urls.py
+  auth_views.py
+  auth_backends.py
+  forms.py
+  |
+  +-- apps/workouts
+  +-- apps/nutrition
+  +-- apps/goals
+  +-- apps/notifications
+  +-- apps/profiles
+  |
+  v
+Django ORM
+  |
+  v
+SQLite or PostgreSQL
 
-External services:  USDA FoodData · OpenAI Responses API · SMTP
+Optional external services:
+  - SMTP mailbox provider
+  - USDA FoodData Central
+  - OpenAI Responses API
 ```
 
-## Repository Structure
+## Repository Layout
 
 ```text
 Fitness-Manager/
-├── fitness_manager/           # Django project settings & authentication
-│   ├── settings.py            # Global configuration
-│   ├── urls.py                # Root URL routing
-│   ├── auth_views.py          # Signup, guest login, logout
-│   ├── auth_backends.py       # Email-or-username authentication backend
-│   └── forms.py               # Auth forms (signup, login)
-│
-├── apps/                      # Feature apps
-│   ├── workouts/              # Workouts, exercises, plans, library, dashboard
-│   ├── nutrition/             # Food, water, photo, USDA lookup, AI estimate
-│   ├── goals/                 # Goal setting and progress calculation
-│   ├── notifications/         # In-app and email notifications
-│   └── profiles/              # User profile and body measurements
-│
-├── templates/                 # HTML templates (registration/, base.html)
-├── features/config/           # Dockerfile, docker-compose.yml, entrypoint.sh
-├── .deploy/                   # Deployment scripts and artifacts
-├── docs/                      # Project documentation
+├── apps/
+│   ├── goals/                 # Goal models, services, views, templates, tests
+│   ├── notifications/         # Notification records and dispatch services
+│   ├── nutrition/             # Food, water, USDA, text AI, photo AI workflows
+│   ├── profiles/              # User profile and body measurements
+│   └── workouts/              # Dashboard, workouts, exercises, plans, browser tests
+├── fitness_manager/           # Django project settings, URLs, authentication
+├── templates/                 # Shared and registration templates
+├── scripts/                   # Demo data and page-probe utilities
+├── docs/                      # Supporting documentation and design artifacts
+├── features/config/           # Docker and deployment configuration assets
+├── .github/workflows/         # GitHub Actions CI definitions
 ├── manage.py                  # Django management entry point
-├── requirements.txt           # Python dependencies
-└── .env.example               # Example environment variables
+├── requirements.txt           # Runtime dependencies
+├── requirements-dev.txt       # Development, coverage, and Playwright dependencies
+├── .coveragerc                # Coverage configuration
+└── .env.example               # Environment variable template
 ```
 
-## Data Models
+## Configuration
 
-All user data is isolated via `ForeignKey(user)` and queried through `request.user`. Six core domains:
+Create a local `.env` file from `.env.example` and set environment-specific values. The `.env` file is intentionally ignored by Git and must not be committed.
 
-### Profiles
-- **UserProfile** — one-to-one with `User`; stores sex, age, height, weight, activity level, and daily water goal. Exposes `activity_multiplier()` and `estimated_daily_calories()` (Mifflin-St Jeor BMR).
-- **BodyMeasurement** — weight, waist, chest, hip, body fat %, dated entries.
+Required local development values:
 
-### Workouts
-- **Workout** — a training session (name, date, notes).
-- **ExerciseEntry** — individual exercise logged against a workout (name, category, muscle group, duration, calories burned, `auto_classified` flag).
-- **ExerciseLibrary** — global reference catalog (name, category, muscle group, instructions).
-- **WorkoutPlan** — user-defined plan with focus, sessions per week, details.
+```env
+DJANGO_ENV=development
+DJANGO_DEBUG=1
+DJANGO_SECRET_KEY=change-me
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+```
 
-### Nutrition
-- **FoodEntry** — name, brand, quantity, macros (`calories`, `protein_g`, `carbs_g`, `fat_g`, `fiber_g`, `sugar_g`, `sodium_mg`), micronutrients (`JSONField`), source (`manual | usda | image`), timestamp.
-- **WaterEntry** — amount in ml, timestamp.
-- **FoodPhoto** — uploaded image, processing status, recognized name, AI payload (`JSONField`), error message.
+Production deployments should set:
 
-### Goals
-- **Goal** — name, type, target value, unit, start/end dates, `active`, notification preferences, `last_notified_at`.
-- Supported goal types: `calories`, `net_calories`, `protein`, `carbs`, `fat`, `water`, `workout_minutes`, `workouts_per_week`.
+```env
+DJANGO_ENV=production
+DJANGO_DEBUG=0
+DJANGO_SECRET_KEY=<strong-secret>
+DJANGO_ALLOWED_HOSTS=<domain>,<server-ip>
+DJANGO_CSRF_TRUSTED_ORIGINS=https://<domain>
+DJANGO_SECURE_PROXY_SSL_HEADER=1
+DJANGO_SECURE_SSL_REDIRECT=1
+DJANGO_SECURE_COOKIES=1
+```
 
-### Notifications
-- **Notification** — channel (`inapp | email | push`), status (`pending | sent | failed`), message, optional `goal` link.
+Email delivery is configured through Django's SMTP backend. The current `.env.example` is aligned with a commercial SMTP mailbox:
 
-## Application Routes
+```env
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+DEFAULT_FROM_EMAIL=notify@terrierfit.com
+DEFAULT_NOTIFICATION_EMAIL=notify@terrierfit.com
+EMAIL_HOST=mail.privateemail.com
+EMAIL_PORT=465
+EMAIL_HOST_USER=notify@terrierfit.com
+EMAIL_HOST_PASSWORD=<mailbox-password>
+EMAIL_USE_TLS=0
+EMAIL_USE_SSL=1
+EMAIL_TIMEOUT_SECONDS=10
+```
 
-All core routes require authentication (`@login_required`).
+Optional feature keys:
 
-### Authentication
-| Route | Method | View |
-|-------|--------|------|
-| `/login/` | GET/POST | Email-or-username login |
-| `/signup/` | GET/POST | Create user and profile |
-| `/guest/` | POST | Temporary guest session (24h cleanup) |
-| `/logout/` | POST | Logout (deletes guest accounts) |
-| `/password-reset/` | GET/POST | Request reset email (via SES) |
-| `/password-reset/done/` | GET | Reset email sent confirmation |
-| `/reset/<uidb64>/<token>/` | GET/POST | Set new password |
-| `/reset/done/` | GET | Reset complete |
+```env
+USDA_API_KEY=<usda-api-key>
+OPENAI_API_KEY=<openai-api-key>
+OPENAI_MODEL=gpt-4o-mini
+```
 
-### Dashboard
-| Route | View |
-|-------|------|
-| `/` | Daily dashboard: calories in/out, net calories, water, recent workouts, top goals, notifications, recommended daily calories |
+If optional API keys are absent, the application remains usable. USDA lookup and AI-assisted estimation either return no external results or fall back to local behavior where implemented.
 
-### Workouts (`apps/workouts/urls.py`)
-| Route | Method | View |
-|-------|--------|------|
-| `/workouts/` | GET | Workout list |
-| `/workouts/add/` | GET/POST | Add workout |
-| `/workouts/<id>/` | GET | Workout detail |
-| `/workouts/<id>/edit/` | GET/POST | Edit workout |
-| `/workouts/<id>/delete/` | POST | Delete workout |
-| `/workouts/<id>/exercise/add/` | GET/POST | Add exercise (with AI calorie estimate) |
-| `/workouts/<id>/exercise/<ex_id>/edit/` | GET/POST | Edit exercise |
-| `/workouts/<id>/exercise/<ex_id>/delete/` | POST | Delete exercise |
-| `/exercise-library/` | GET | Browse exercise library |
-| `/plans/` | GET | Workout plan list |
-| `/plans/add/` | GET/POST | Create plan |
-| `/plans/<id>/edit/` | GET/POST | Edit plan |
-| `/plans/<id>/delete/` | POST | Delete plan |
+## Local Development
 
-### Nutrition (`apps/nutrition/urls.py`)
-| Route | Method | View |
-|-------|--------|------|
-| `/nutrition/` | GET | Food list |
-| `/nutrition/add/` | GET/POST | Add food (supports prefill params) |
-| `/nutrition/<id>/edit/` | GET/POST | Edit food |
-| `/nutrition/<id>/delete/` | POST | Delete food |
-| `/nutrition/lookup/` | GET | USDA food search |
-| `/nutrition/summary/` | GET | Macro/micro summary (day/week/month) |
-| `/nutrition/photo/` | GET/POST | AI photo recognition |
-| `/nutrition/estimate/` | GET/POST | AI text-based estimate |
-| `/nutrition/water/` | GET | Water log list |
-| `/nutrition/water/add/` | GET/POST | Add water entry (ml or oz) |
-| `/nutrition/water/<id>/edit/` | GET/POST | Edit water entry |
-| `/nutrition/water/<id>/delete/` | POST | Delete water entry |
+Prerequisite: Python 3.10 or newer.
 
-### Goals (`apps/goals/urls.py`)
-| Route | Method | View |
-|-------|--------|------|
-| `/goals/` | GET | Goal list with live progress |
-| `/goals/add/` | GET/POST | Create goal |
-| `/goals/<id>/edit/` | GET/POST | Edit goal |
-| `/goals/<id>/delete/` | POST | Delete goal |
-
-### Profiles (`apps/profiles/urls.py`)
-| Route | Method | View |
-|-------|--------|------|
-| `/profile/` | GET/POST | Edit profile |
-| `/profile/body-metrics/` | GET | Body metrics list |
-| `/profile/body-metrics/add/` | GET/POST | Add body metric |
-| `/profile/body-metrics/<id>/edit/` | GET/POST | Edit body metric |
-| `/profile/body-metrics/<id>/delete/` | POST | Delete body metric |
-
-### Notifications (`apps/notifications/urls.py`)
-| Route | Method | View |
-|-------|--------|------|
-| `/notifications/` | GET | Notification list |
-
-### Admin
-| Route | View |
-|-------|------|
-| `/admin/` | Django admin panel |
-
-## External Service Integrations
-
-### USDA FoodData Central (`apps/nutrition/services.py`)
-- Endpoint: `https://api.nal.usda.gov/fdc/v1/foods/search`
-- Used by `/nutrition/lookup/` to search foods and prefill nutrition.
-- Parses calories, macros, sodium, and selected micronutrients (iron, calcium, vitamin C, potassium).
-- Retry: 2 attempts with 0.4s backoff; degrades gracefully if `USDA_API_KEY` is missing.
-
-### OpenAI Responses API (`apps/nutrition/vision.py`, `apps/workouts/ai.py`)
-Three AI features, all consuming the OpenAI Responses API (`temperature=0.1–0.2`, JSON-only output):
-1. **Food photo recognition** — image is re-encoded to JPEG base64 (max 1024×1024) and sent for nutrition extraction.
-2. **Text-based meal estimate** — meal description converted into macros/micros JSON.
-3. **Exercise calorie estimate** — given exercise name, duration, category, muscle group, and weight, returns `calories_burned`. Falls back to category-based per-minute rates if the API is unavailable.
-
-### Email Delivery
-- Email is sent through Django's built-in SMTP backend.
-- Namecheap Private Email uses `mail.privateemail.com` with port `465` and SSL in the current deployment.
-- `DEFAULT_FROM_EMAIL` and `DEFAULT_NOTIFICATION_EMAIL` are both expected to use `notify@terrierfit.com`.
-
-## Authentication Flow
-
-- **Custom backend** (`EmailOrUsernameModelBackend`) allows login with either email or username (case-insensitive), then falls back to the default `ModelBackend`.
-- **Signup** supports email-first registration, auto-generates a unique username when omitted, creates a `User` and linked `UserProfile` in one transaction, then auto-logs in.
-- **Guest login** (POST only) creates a random `guest_<hex>` user with an unusable password; stale guest accounts older than 24h are cleaned up on each guest login.
-- **Sessions** default to a 2-hour idle timeout (`DJANGO_SESSION_TIMEOUT_SECONDS`) and refresh on every request.
-- **Password reset** uses a guarded Django password reset view with SMTP-backed email delivery.
-
-## Core Business Logic
-
-| Service | Location | Behavior |
-|---------|----------|----------|
-| BMR estimate | `apps/profiles/models.py` | Mifflin-St Jeor formula × activity multiplier (1.2–1.9) |
-| Goal progress | `apps/goals/services.py::calculate_goal_progress` | Dispatches goal type to an aggregate query over food/exercise/water entries |
-| Exercise recommendation | `apps/goals/services.py::recommend_exercises_for_goal` | Maps goal type to `ExerciseLibrary` categories |
-| Exercise classification | `apps/workouts/utils.py::classify_exercise` | Keyword-based category/muscle mapping |
-| Calorie estimate fallback | `apps/workouts/utils.py::estimate_calories` | Per-minute rate by category when AI unavailable |
-| Notification dispatch | `apps/notifications/services.py::send_notification` | Creates record, dispatches per channel, updates status |
-
-## Local Setup
-
-Prerequisite: Python 3.10+
-
-1. Create virtual environment
+1. Create and activate a virtual environment.
 
 ```powershell
 python -m venv venv
 .\venv\Scripts\Activate
 ```
 
-2. Install dependencies
+2. Install runtime dependencies.
 
 ```powershell
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-3. Configure environment
+3. Create the local environment file.
 
 ```powershell
 copy .env.example .env
 ```
 
-Minimum local values in `.env`:
-
-```env
-DJANGO_DEBUG=1
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-4. Migrate and run
+4. Apply migrations.
 
 ```powershell
 python manage.py migrate
+```
+
+5. Start the local development server when local browser testing is required.
+
+```powershell
 python manage.py runserver
 ```
 
-App URL: `http://127.0.0.1:8000/`
+Default local URL:
 
-## Optional API Integrations
+```text
+http://127.0.0.1:8000/
+```
 
-Set these in `.env`:
+## Demo Data
 
-- `USDA_API_KEY` — USDA food search
-- `OPENAI_API_KEY` — AI estimates (photo, text, exercise calories)
-- `OPENAI_MODEL` — e.g. `gpt-4.1-mini`, `gpt-4o-mini`
-- `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `EMAIL_USE_SSL` — SMTP email delivery
+The repository includes an idempotent demo-data script for the `demo` account.
 
-If keys are missing, those features remain visible but may return no results / fallback behavior.
+```powershell
+python scripts/seed_demo.py
+```
 
-## Testing
+Default demo credentials:
+
+```text
+username: demo
+password: demo12345
+```
+
+The script clears and recreates demo rows for the demo user so that dashboards, lists, charts, goals, notifications, and edit screens have realistic data.
+
+## Testing and Quality Gates
+
+Install development dependencies before running the complete QA suite:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+```
+
+Run the Django system check:
+
+```powershell
+python manage.py check
+```
 
 Run all tests:
 
@@ -307,55 +243,116 @@ Run all tests:
 python manage.py test
 ```
 
-Run nutrition tests only:
+Run coverage:
 
 ```powershell
-python manage.py test apps.nutrition
+coverage erase
+coverage run manage.py test
+coverage report
+coverage xml
 ```
 
-Static checks:
+Coverage is configured in `.coveragerc` with branch coverage enabled and a minimum total threshold of 70 percent.
+
+Run Playwright browser-level tests locally:
 
 ```powershell
-python manage.py check
+python -m playwright install chromium
+python manage.py test apps.workouts.tests_playwright
 ```
 
-## Production Deployment (Current Pattern)
+If a system Chrome installation should be used instead of the bundled Playwright browser:
 
-Target runtime:
+```powershell
+$env:PLAYWRIGHT_CHROMIUM_EXECUTABLE="C:\Program Files\Google\Chrome\Application\chrome.exe"
+python manage.py test apps.workouts.tests_playwright
+```
 
-- Gunicorn on `127.0.0.1:8010`
-- Nginx reverse proxy
-- systemd service: `fitness-manager`
-- Static files served from `staticfiles/`
+The Playwright suite covers:
 
-Typical update steps on server:
+- Login.
+- Registration.
+- Password reset.
+- Mobile layout overflow checks.
+- Core authenticated CRUD flows.
+
+GitHub Actions runs the following on push and pull request events:
+
+- Dependency installation.
+- `python manage.py check`.
+- `coverage run manage.py test --verbosity 2`.
+- `coverage report`.
+- `coverage xml`.
+- Coverage XML upload as a CI artifact.
+
+## External Integrations
+
+### SMTP Email
+
+Password reset and email notifications use Django's SMTP backend. The application expects a working mailbox, valid SMTP password, and compatible TLS or SSL settings. The current production-oriented configuration uses SSL on port 465.
+
+### USDA FoodData Central
+
+The nutrition lookup workflow calls USDA FoodData Central when `USDA_API_KEY` is configured. The service is used to search foods and prefill calories, macros, sodium, and selected micronutrients.
+
+### OpenAI Responses API
+
+AI-assisted features use the OpenAI Responses API when `OPENAI_API_KEY` is configured:
+
+- Meal estimation from text.
+- Meal estimation from uploaded food photos.
+- Exercise calorie estimation.
+
+Exercise calorie estimation includes a local fallback so core workout logging remains available if the API is unavailable.
+
+## Deployment
+
+The current deployment model is a single-server Django deployment:
+
+- Gunicorn application server.
+- Nginx reverse proxy.
+- systemd service named `fitness-manager`.
+- Static files collected into `staticfiles/`.
+- PostgreSQL recommended for production persistence.
+
+Typical production update sequence:
 
 ```bash
+git pull
+python -m pip install -r requirements.txt
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
 sudo systemctl restart fitness-manager
-sudo nginx -t && sudo systemctl reload nginx
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
-## Security and Data Scope
+Production verification should include:
 
-- Auth required for all core user pages
-- Data access is scoped by `request.user` in views and queries
-- No cross-user read/write should be possible under normal flows
+```bash
+python manage.py check
+python manage.py test
+```
 
-## Known Limitations (V1)
+For live environments, use the local-memory email backend only in tests. Production password reset requires the SMTP backend and valid mailbox credentials.
 
-- No dedicated admin analytics dashboard yet
-- USDA/OpenAI features depend on API key configuration
-- Some summary targets are currently fixed defaults and not fully personalized
+## Security Considerations
 
-## Roadmap (Post-Midterm)
+- `.env` is ignored by Git and must remain local to each environment.
+- All core application pages require authentication.
+- User-owned rows are scoped through `request.user`.
+- Guest accounts use unusable passwords and are cleaned up after they become stale.
+- Password reset is handled by Django's token-based reset flow.
+- Production should enable HTTPS redirect, secure cookies, and proxy SSL headers.
+- Uploaded food photos are size-limited and validated before processing.
 
-- Improve personalization of nutrition and workout recommendations
-- Add richer charts for trend analysis
-- Add better onboarding and inline guidance
-- Expand test coverage for UI workflows
+## Known Limitations
+
+- No dedicated administrative analytics dashboard is included.
+- USDA and OpenAI features depend on external API availability and configured keys.
+- Some nutrition and hydration recommendations use fixed defaults rather than fully personalized clinical guidance.
+- The application is not a medical device and does not provide medical advice.
 
 ## License
 
-Internal academic/project use unless otherwise specified.
+Internal academic and project use unless a separate license is provided.
