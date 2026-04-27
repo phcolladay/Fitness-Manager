@@ -1,35 +1,33 @@
-{% extends "base.html" %}
+{% extends "base_auth.html" %}
 
-{% block title %}Login | Fitness Manager{% endblock %}
+{% block title %}Login | FitMan{% endblock %}
+{% block auth_title %}Login{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Login</h1>
-      <p class="subtitle">Welcome back. Keep the streak alive.</p>
-    </div>
-  </div>
-    <div class="panel" style="max-width: 560px">
-    <div class="panel-inner">
-    <p class="hint">Guest mode is temporary. Guest data is removed on logout and stale guest accounts are auto-cleaned.</p>
-    <form id="login-form" method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <p class="muted" style="margin-top: 2px">
-        Forgot password?
-        <a href="{% url 'password_reset' %}" style="text-decoration: underline">Reset here</a>
-      </p>
-    </form>
+  <form id="login-form" class="fm-form" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+    <button class="fm-btn fm-btn-primary fm-btn-block" type="submit">Login</button>
+  </form>
 
-    <div class="auth-actions auth-actions-stack">
-      <button class="btn auth-btn" type="submit" form="login-form">Sign in</button>
-      <a class="btn btn-ghost auth-btn" href="{% url 'signup' %}">Create account</a>
-      <form class="auth-inline-form" method="post" action="{% url 'guest_login' %}">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}" />
-        <button class="btn btn-ghost auth-btn" type="submit">Continue as guest</button>
-      </form>
-    </div>
-    </div>
+  <div class="fm-auth-actions">
+    <a class="fm-btn fm-btn-secondary fm-btn-block" href="{% url 'signup' %}">Register</a>
+    <form method="post" action="{% url 'guest_login' %}" class="fm-auth-inline">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}" />
+      <button class="fm-btn fm-btn-secondary fm-btn-block" type="submit">Guest</button>
+    </form>
   </div>
+
+  <p class="fm-auth-hint">
+    Guest mode is temporary. Guest data is removed on logout and stale guest accounts are auto-cleaned.
+  </p>
+{% endblock %}
+
+{% block auth_footer %}
+  <p class="fm-auth-footer-text">
+    Forgot your password?
+    <a href="{% url 'password_reset' %}" class="fm-link">Reset Password</a>
+  </p>
 {% endblock %}

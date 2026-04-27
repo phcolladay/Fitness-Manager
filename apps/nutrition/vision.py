@@ -121,8 +121,9 @@ def recognize_food(image_path: str) -> dict:
                 "type": "input_text",
                 "text": (
                     "Identify the food in the image and return ONLY a JSON object with keys: "
-                    "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg. "
-                    "Use numbers for all *_g, calories, sodium_mg. Use best effort estimates."
+                    "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, micronutrients. "
+                    "micronutrients must be an object and may include iron_mg, calcium_mg, vitamin_c_mg, "
+                    "potassium_mg, fiber_g, sodium_mg. Use numbers for numeric fields and best-effort estimates."
                 ),
             },
             {
@@ -140,7 +141,9 @@ def estimate_food_from_text(description: str) -> dict:
                 "type": "input_text",
                 "text": (
                     "Given this meal description, estimate nutrition and return ONLY JSON with keys: "
-                    "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg. "
+                    "name, calories, protein_g, carbs_g, fat_g, fiber_g, sugar_g, sodium_mg, micronutrients. "
+                    "micronutrients must be an object and may include iron_mg, calcium_mg, vitamin_c_mg, "
+                    "potassium_mg, fiber_g, sodium_mg. "
                     f"Meal: {description}"
                 ),
             }

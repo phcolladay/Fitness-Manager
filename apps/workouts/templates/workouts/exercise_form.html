@@ -1,25 +1,26 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Exercise | Fitness Manager{% endblock %}
+{% block title %}{% if mode == "edit" %}Edit Exercise{% else %}Add Exercise{% endif %} | FitMan{% endblock %}
+{% block page_title %}{% if mode == "edit" %}Edit Exercise{% else %}Add Exercise{% endif %}{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">{% if mode == "edit" %}Edit{% else %}Add{% endif %} Exercise</h1>
-      <p class="subtitle">Workout: {{ workout.name }}</p>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Workout: <strong>{{ workout.name }}</strong></span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:detail' workout.id %}">Back to Workout</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-          <button class="btn" type="submit">Save</button>
-          <a class="btn btn-ghost" href="{% url 'workouts:detail' workout.id %}">Back</a>
-        </div>
-      </form>
-    </div>
-  </div>
+  <section class="fm-card">
+    <p class="fm-muted">
+      Leave calories empty and click <strong>AI Estimate Calories</strong> to auto-fill, then review before saving.
+    </p>
+    <form class="fm-form" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-accent" type="submit" name="ai_estimate" value="1">AI Estimate Calories</button>
+        <button class="fm-btn fm-btn-primary" type="submit">{% if mode == "edit" %}Update{% else %}Save{% endif %}</button>
+        <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:detail' workout.id %}">Cancel</a>
+      </div>
+    </form>
+  </section>
 {% endblock %}

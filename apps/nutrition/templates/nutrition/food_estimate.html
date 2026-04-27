@@ -1,29 +1,22 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Estimate From Description | Fitness Manager{% endblock %}
+{% block title %}Estimate From Description | FitMan{% endblock %}
+{% block page_title %}Estimate From Description{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Estimate From Description</h1>
-      <p class="subtitle">No nutrition label? Describe your meal to get estimated calories and macros.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Back to Add Food</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">No nutrition label? Describe your meal to get estimated calories and macros.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:add' %}">Back to Add Food</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      <form method="post" data-loading="Estimating nutrition...">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-          <button class="btn" type="submit">Get Estimate</button>
-          <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Enter manually</a>
-        </div>
-        <p class="loading-note">Estimating nutrition...</p>
-      </form>
-    </div>
-  </div>
+  <section class="fm-card">
+    <form class="fm-form" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-primary" type="submit">Get Estimate</button>
+        <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:add' %}">Enter Manually</a>
+      </div>
+    </form>
+  </section>
 {% endblock %}

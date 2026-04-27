@@ -1,12 +1,15 @@
 import os
 import tempfile
+import json
+from urllib.parse import parse_qs, urlparse
 from unittest.mock import Mock, patch
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from .models import FoodEntry, WaterEntry
-from .services import search_usda_foods
+from .services import _extract_nutrients, search_usda_foods
+from .views import _prefill_add_url
 from .vision import recognize_food
 
 
@@ -72,3 +75,40 @@ class NutritionServiceTests(TestCase):
                 os.remove(path)
             except OSError:
                 pass
+
+    def test_extract_nutrients_includes_micros(self):
+        nutrients = [
+            {"nutrientName": "Iron, Fe", "value": 2.7, "unitName": "mg"},
+            {"nutrientName": "Calcium, Ca", "value": 220, "unitName": "mg"},
+            {"nutrientName": "Vitamin C, total ascorbic acid", "value": 12, "unitName": "mg"},
+            {"nutrientName": "Fiber, total dietary", "value": 3.1, "unitName": "g"},
+            {"nutrientName": "Sodium, Na", "value": 45, "unitName": "mg"},
+        ]
+        mapped = _extract_nutrients(nutrients)
+        micros = mapped.get("micronutrients", {})
+        self.assertEqual(micros.get("iron_mg"), 2.7)
+        self.assertEqual(micros.get("calcium_mg"), 220.0)
+        self.assertEqual(micros.get("vitamin_c_mg"), 12.0)
+        self.assertEqual(micros.get("fiber_g"), 3.1)
+        self.assertEqual(micros.get("sodium_mg"), 45.0)
+
+    def test_prefill_url_serializes_micronutrients(self):
+        url = _prefill_add_url(
+            source="manual",
+            result={
+                "name": "Banana bowl",
+                "calories": 320,
+                "protein_g": 9,
+                "carbs_g": 58,
+                "fat_g": 7,
+                "fiber_g": 8,
+                "sodium_mg": 120,
+                "micronutrients": {"iron_mg": 1.8, "calcium_mg": "42"},
+            },
+            default_name="Estimated meal",
+        )
+        query = parse_qs(urlparse(url).query)
+        payload = json.loads(query["micronutrients"][0])
+        self.assertEqual(payload["iron_mg"], 1.8)
+        self.assertEqual(payload["calcium_mg"], 42.0)
+        self.assertEqual(payload["fiber_g"], 8.0)

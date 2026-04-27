@@ -1,52 +1,49 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Add Food | Fitness Manager{% endblock %}
+{% block title %}{% if form.instance.pk %}Edit Food{% else %}Add Food{% endif %} | FitMan{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Food{% else %}Add Food{% endif %}{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Add Food</h1>
-      <p class="subtitle">Pick the easiest way to log food, then review and save.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Back to Nutrition</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Pick the easiest way to log food, then review and save.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:list' %}">Back to Nutrition</a>
   </div>
 
-  <div class="panel panel-gap">
-    <div class="panel-inner">
-      <div class="section-head">
-        <h2 class="section-title">Quick Add Options</h2>
-        <span class="muted section-meta">Start with search, text, or photo</span>
+  {% if not form.instance.pk %}
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Quick Add Options</h3>
+        <span class="fm-muted">Start with search, text, or photo</span>
       </div>
-      <div class="api-tools">
-        <a class="api-tool" href="{% url 'nutrition:lookup' %}">
-          <span class="api-tool-title">Search USDA Foods</span>
-          <span class="api-tool-meta">Find foods in FoodData Central and auto-fill nutrition values.</span>
+      <div class="fm-tool-grid">
+        <a class="fm-tool-card" href="{% url 'nutrition:lookup' %}">
+          <span class="fm-tool-card-title">Search USDA Foods</span>
+          <span class="fm-tool-card-meta">Find foods in FoodData Central and auto-fill nutrition values.</span>
         </a>
-        <a class="api-tool" href="{% url 'nutrition:estimate' %}">
-          <span class="api-tool-title">Estimate From Description</span>
-          <span class="api-tool-meta">Describe your meal to get a quick calorie and macro estimate.</span>
+        <a class="fm-tool-card" href="{% url 'nutrition:estimate' %}">
+          <span class="fm-tool-card-title">Estimate From Description</span>
+          <span class="fm-tool-card-meta">Describe your meal to get a quick calorie and macro estimate.</span>
         </a>
-        <a class="api-tool" href="{% url 'nutrition:photo_upload' %}">
-          <span class="api-tool-title">Estimate From Photo</span>
-          <span class="api-tool-meta">Upload a meal photo and generate editable nutrition estimates.</span>
+        <a class="fm-tool-card" href="{% url 'nutrition:photo_upload' %}">
+          <span class="fm-tool-card-title">Estimate From Photo</span>
+          <span class="fm-tool-card-meta">Upload a meal photo and generate editable nutrition estimates.</span>
         </a>
       </div>
-    </div>
-  </div>
+    </section>
+  {% endif %}
 
-  <div class="panel">
-    <div class="panel-inner">
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="hidden" name="source" value="{{ source|default:'manual' }}" />
-        <div class="form-actions">
-          <button class="btn" type="submit">Save</button>
-          <a class="btn btn-ghost" href="{% url 'nutrition:list' %}">Cancel</a>
-        </div>
-      </form>
+  <section class="fm-card fm-mt-4">
+    <div class="fm-card-header">
+      <h3 class="fm-card-title">{% if form.instance.pk %}Edit Entry{% else %}Manual Entry{% endif %}</h3>
     </div>
-  </div>
+    <form class="fm-form" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="hidden" name="source" value="{{ source|default:'manual' }}" />
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-primary" type="submit">{% if form.instance.pk %}Update{% else %}Save{% endif %}</button>
+        <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:list' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
 {% endblock %}

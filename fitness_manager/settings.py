@@ -210,8 +210,15 @@ SESSION_SAVE_EVERY_REQUEST = True
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE", str(10 * 1024 * 1024)))
 FOOD_PHOTO_MAX_UPLOAD_SIZE = int(os.getenv("FOOD_PHOTO_MAX_UPLOAD_SIZE", str(5 * 1024 * 1024)))
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "fitness_manager.email_backends.SESEmailBackend")
 
+# AWS SES API configuration
+SES_REGION = os.getenv("SES_REGION", "us-east-1")
+SES_FROM_EMAIL = os.getenv("SES_FROM_EMAIL", "")
+SES_MAX_RETRIES = int(os.getenv("SES_MAX_RETRIES", "2"))
+SES_RETRY_BACKOFF_SECONDS = float(os.getenv("SES_RETRY_BACKOFF_SECONDS", "0.6"))
+
+# Optional SMTP configuration for fallback/custom backend usage.
 EMAIL_HOST = os.getenv("EMAIL_HOST", "")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
@@ -224,9 +231,11 @@ if EMAIL_USE_TLS and EMAIL_USE_SSL:
     raise RuntimeError("EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be enabled.")
 if DJANGO_ENV == "production" and EMAIL_BACKEND.endswith("console.EmailBackend"):
     print("WARNING: EMAIL_BACKEND is console in production. Password reset emails will not be delivered.")
+if DJANGO_ENV == "production" and not (SES_FROM_EMAIL or os.getenv("DEFAULT_FROM_EMAIL", "")):
+    print("WARNING: SES_FROM_EMAIL/DEFAULT_FROM_EMAIL is empty. Email sending will fail.")
 
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
-DEFAULT_NOTIFICATION_EMAIL = os.getenv("DEFAULT_NOTIFICATION_EMAIL", "")
+DEFAULT_FROM_EMAIL = SES_FROM_EMAIL or os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
+DEFAULT_NOTIFICATION_EMAIL = os.getenv("DEFAULT_NOTIFICATION_EMAIL", DEFAULT_FROM_EMAIL)
 
 CSRF_TRUSTED_ORIGINS = [
     o.strip()
