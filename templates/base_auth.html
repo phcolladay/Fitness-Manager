@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}FitMan{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'fitman.css' %}?v=stage1" />
+  </head>
+  <body class="fm-body">
+    <div class="fm-auth-shell">
+      <div class="fm-auth-card">
+        <div class="fm-auth-brand">
+          <img src="{% static 'brand/terrierfit-mark.png' %}" alt="FitMan" />
+          <span>FitMan</span>
+        </div>
+        <h1 class="fm-auth-title">{% block auth_title %}Welcome{% endblock %}</h1>
+
+        {% if messages %}
+          <div class="fm-messages">
+            {% for message in messages %}
+              <div class="fm-message">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+
+        {% block auth_footer %}{% endblock %}
+      </div>
+    </div>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

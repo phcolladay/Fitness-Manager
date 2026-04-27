@@ -1,51 +1,47 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Profile | Fitness Manager{% endblock %}
+{% block title %}Profile | FitMan{% endblock %}
+{% block page_title %}Profile{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Profile</h1>
-      <p class="subtitle">Demographics and daily targets used for calorie and hydration guidance.</p>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Demographics and daily targets used for calorie and hydration guidance.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:home' %}">Back to Dashboard</a>
   </div>
 
-  <div class="grid">
-    <div class="span-8 panel">
-      <div class="panel-inner">
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <div class="form-actions">
-            <button class="btn" type="submit">Save profile</button>
-            <a class="btn btn-ghost" href="{% url 'workouts:home' %}">Back</a>
-          </div>
-        </form>
+  <div class="fm-grid" style="grid-template-columns: 2fr 1fr;">
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Profile Details</h3>
       </div>
-    </div>
+      <form class="fm-form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="fm-form-actions">
+          <button class="fm-btn fm-btn-primary" type="submit">Save Profile</button>
+          <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:home' %}">Cancel</a>
+        </div>
+      </form>
+    </section>
 
-    <div class="span-4 panel">
-      <div class="panel-inner">
-        <h2 style="margin:0 0 10px; font-family: Fraunces, serif">Guidance</h2>
-        <div class="stat">
-          <div class="k">Estimated Daily Calories</div>
-          <div class="v">
-            {% if recommended_calories %}
-              {{ recommended_calories }}
-            {% else %}
-              -
-            {% endif %}
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Guidance</h3>
+      </div>
+      <div class="fm-stack-4">
+        <div class="fm-stat">
+          <div class="fm-stat-label">Estimated Daily Calories</div>
+          <div class="fm-stat-value">
+            {% if recommended_calories %}{{ recommended_calories }}{% else %}-{% endif %}
           </div>
-          <div class="h">Based on profile fields</div>
+          <div class="fm-stat-hint">Based on profile fields</div>
         </div>
-        <div style="height:10px"></div>
-        <div class="stat">
-          <div class="k">Water Goal</div>
-          <div class="v">{{ profile.daily_water_goal_ml }} ml</div>
-          <div class="h">Editable above</div>
+        <div class="fm-stat">
+          <div class="fm-stat-label">Water Goal</div>
+          <div class="fm-stat-value">{{ profile.daily_water_goal_ml }} ml</div>
+          <div class="fm-stat-hint">Editable above</div>
         </div>
       </div>
-    </div>
+    </section>
   </div>
 {% endblock %}
-

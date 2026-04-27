@@ -1,30 +1,22 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}{% if mode == "edit" %}Edit Water{% else %}Add Water{% endif %} | Fitness Manager{% endblock %}
+{% block title %}{% if mode == "edit" %}Edit Water{% else %}Add Water{% endif %} | FitMan{% endblock %}
+{% block page_title %}{% if mode == "edit" %}Edit Water{% else %}Add Water{% endif %}{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      {% if mode == "edit" %}
-        <h1 class="title">Edit Water</h1>
-      {% else %}
-        <h1 class="title">Add Water</h1>
-      {% endif %}
-      <p class="subtitle">Quick entry. Amount and time.</p>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Quick entry. Amount and time.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:water_list' %}">Back to Water</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      <form method="post" data-loading="Saving water entry...">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-          <button class="btn" type="submit">{% if mode == "edit" %}Update{% else %}Save{% endif %}</button>
-          <a class="btn btn-ghost" href="{% url 'nutrition:water_list' %}">Cancel</a>
-        </div>
-        <p class="loading-note">Saving water entry...</p>
-      </form>
-    </div>
-  </div>
+  <section class="fm-card">
+    <form class="fm-form" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-primary" type="submit">{% if mode == "edit" %}Update{% else %}Save{% endif %}</button>
+        <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:water_list' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
 {% endblock %}

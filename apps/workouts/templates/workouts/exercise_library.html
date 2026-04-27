@@ -1,37 +1,33 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Exercise Library | Fitness Manager{% endblock %}
+{% block title %}Exercise Library | FitMan{% endblock %}
+{% block page_title %}Exercise Library{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Exercise Library</h1>
-      <p class="subtitle">Search exercises by name with instructions and muscle group.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'workouts:list' %}">Back</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Search exercises by name with instructions and muscle group.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:list' %}">Back to Exercise</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      <form method="get">
-        <p>
-          <label for="id_q">Search</label>
-          <input id="id_q" type="text" name="q" value="{{ q }}" placeholder="e.g. squat, push-up, deadlift" />
-        </p>
-        <div class="form-actions">
-          <button class="btn" type="submit">Search</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <section class="fm-card">
+    <form class="fm-form" method="get">
+      <p>
+        <label for="id_q">Search</label>
+        <input id="id_q" type="text" name="q" value="{{ q }}" placeholder="e.g. squat, push-up, deadlift" />
+      </p>
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-primary" type="submit">Search</button>
+      </div>
+    </form>
+  </section>
 
-  <div style="height:14px"></div>
-  <div class="panel">
-    <div class="panel-inner">
-      {% if items %}
-        <table>
+  <section class="fm-card fm-mt-4">
+    <div class="fm-card-header">
+      <h3 class="fm-card-title">Results</h3>
+    </div>
+    {% if items %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Name</th>
@@ -43,23 +39,23 @@
           <tbody>
             {% for item in items %}
               <tr>
-                <td style="font-weight:900">{{ item.name }}</td>
-                <td class="muted">{{ item.category|default:"-" }}</td>
-                <td class="muted">{{ item.muscle_group|default:"-" }}</td>
-                <td class="muted">
+                <td class="fm-strong">{{ item.name }}</td>
+                <td class="fm-muted">{{ item.category|default:"-" }}</td>
+                <td class="fm-muted">{{ item.muscle_group|default:"-" }}</td>
+                <td class="fm-muted">
                   {{ item.description|default:"-" }}
-                  {% if item.instructions %}
-                    <br /><strong>How:</strong> {{ item.instructions }}
-                  {% endif %}
+                  {% if item.instructions %}<br /><strong>How:</strong> {{ item.instructions }}{% endif %}
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No exercises found.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No exercises found</div>
+        <div class="fm-empty-text">Try a different search term or check back later.</div>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}
-

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<!--
+  FitMan Design System — Stage 1 Component Showcase
+  ===================================================
+  This is a STANDALONE preview file. Open it directly in a browser
+  (file://) — no Django / server required.
+
+  Purpose: let the reviewer see every component class defined in
+  fitman.css against the target mockups in .tmp-screenshots/,
+  before we start rewriting real templates in Stage 3.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FitMan Design System — Preview</title>
+    <link rel="stylesheet" href="../../apps/workouts/static/fitman.css" />
+    <style>
+      /* Preview-only styles (NOT part of fitman.css) */
+      .preview-section {
+        padding: 32px 40px;
+        border-bottom: 1px dashed var(--fm-border-strong);
+      }
+      .preview-section > h2 {
+        margin: 0 0 4px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--fm-text-muted);
+      }
+      .preview-section > p {
+        margin: 0 0 20px;
+        color: var(--fm-text-subtle);
+        font-size: 13px;
+      }
+      .preview-swatch {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        margin-right: 12px;
+        font-size: 11px;
+        color: var(--fm-text-muted);
+      }
+      .preview-swatch .chip {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        border: 1px solid var(--fm-border);
+      }
+      .preview-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+  <body class="fm-body">
+
+    <!-- ============================================================
+         SECTION 1 — Full layout (sidebar + topbar + content)
+         Simulates how Dashboard / Exercise / Nutrition pages will look.
+         ============================================================ -->
+    <div class="fm-layout">
+      <aside class="fm-sidebar">
+        <a class="fm-sidebar-brand" href="#">
+          <img src="../../apps/workouts/static/brand/terrierfit-mark.png" alt="FitMan" />
+          <span>FitMan</span>
+        </a>
+        <nav class="fm-sidebar-nav">
+          <a href="#" class="fm-sidebar-link is-active">Dashboard</a>
+          <a href="#" class="fm-sidebar-link">Nutrition</a>
+          <a href="#" class="fm-sidebar-link">Exercise</a>
+          <a href="#" class="fm-sidebar-link">Body Metrics</a>
+          <a href="#" class="fm-sidebar-link">Goal Management</a>
+        </nav>
+      </aside>
+
+      <div class="fm-main-wrap">
+        <header class="fm-topbar">
+          <div class="fm-topbar-left">
+            <h1 class="fm-topbar-title">Dashboard</h1>
+          </div>
+          <div class="fm-topbar-right">
+            <button type="button" class="fm-icon-btn" aria-label="Notifications">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="fm-badge">3</span>
+            </button>
+            <div class="fm-user">
+              <div class="fm-avatar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <span class="fm-user-name">User Name</span>
+            </div>
+          </div>
+        </header>
+
+        <main class="fm-main">
+          <div class="fm-grid fm-grid-2">
+            <div class="fm-card">
+              <div class="fm-card-header">
+                <h3 class="fm-card-title">Net Calories</h3>
+              </div>
+              <div class="fm-placeholder-block"></div>
+            </div>
+            <div class="fm-card">
+              <div class="fm-card-header">
+                <h3 class="fm-card-title">Goals</h3>
+                <button type="button" class="fm-btn fm-btn-accent fm-btn-sm">Add</button>
+              </div>
+              <div class="fm-placeholder-block"></div>
+            </div>
+            <div class="fm-card">
+              <div class="fm-card-header">
+                <h3 class="fm-card-title">Hydration</h3>
+                <button type="button" class="fm-btn fm-btn-accent fm-btn-sm">Add</button>
+              </div>
+              <div class="fm-placeholder-block"></div>
+            </div>
+            <div class="fm-card">
+              <div class="fm-card-header">
+                <h3 class="fm-card-title">Recent Workouts</h3>
+                <button type="button" class="fm-btn fm-btn-accent fm-btn-sm">Add</button>
+              </div>
+              <div class="fm-placeholder-block"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         SECTION 2 — Color swatches
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Color Tokens</h2>
+      <p>All palette values live as CSS custom properties on <code>:root</code>.</p>
+      <div class="preview-row">
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-bg)"></div>bg</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-surface)"></div>surface</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-border)"></div>border</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-primary)"></div>primary</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-primary-soft)"></div>primary-soft</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-secondary)"></div>secondary</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-accent)"></div>accent</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-warning)"></div>warning</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-danger)"></div>danger</div>
+        <div class="preview-swatch"><div class="chip" style="background:var(--fm-ghost)"></div>ghost</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 3 — Buttons
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Buttons</h2>
+      <p>Every variant, semantic-colored to match the screenshots.</p>
+      <div class="preview-row">
+        <button class="fm-btn fm-btn-primary">Primary (Save)</button>
+        <button class="fm-btn fm-btn-secondary">Secondary (Auto-Fill)</button>
+        <button class="fm-btn fm-btn-ghost">Ghost (Cancel)</button>
+        <button class="fm-btn fm-btn-accent">Accent (Add)</button>
+        <button class="fm-btn fm-btn-edit">Edit</button>
+        <button class="fm-btn fm-btn-danger">Delete</button>
+        <button class="fm-btn fm-btn-outline">Outline</button>
+      </div>
+      <div class="preview-row">
+        <button class="fm-btn fm-btn-primary fm-btn-sm">Small</button>
+        <button class="fm-btn fm-btn-primary">Default</button>
+        <button class="fm-btn fm-btn-primary fm-btn-lg">Large</button>
+        <button class="fm-btn fm-btn-primary" disabled>Disabled</button>
+      </div>
+      <div class="preview-row" style="max-width:340px">
+        <button class="fm-btn fm-btn-primary fm-btn-block fm-btn-lg">Block button (like Login)</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 4 — Form elements
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Forms</h2>
+      <p>Matches the <em>Add Food</em> screenshot field styling.</p>
+      <div class="fm-card" style="max-width:560px">
+        <div class="fm-field">
+          <label class="fm-label" for="p-name">Food Name</label>
+          <input id="p-name" class="fm-input" type="text" placeholder="e.g., Grilled Chicken Breast" />
+        </div>
+        <div class="fm-field-row">
+          <div class="fm-field">
+            <label class="fm-label" for="p-qty">Quantity</label>
+            <input id="p-qty" class="fm-input" type="number" placeholder="200" />
+          </div>
+          <div class="fm-field">
+            <label class="fm-label" for="p-unit">Unit</label>
+            <select id="p-unit" class="fm-select">
+              <option>Select</option>
+              <option>grams</option>
+              <option>ounces</option>
+            </select>
+          </div>
+        </div>
+        <div class="fm-field">
+          <label class="fm-label" for="p-notes">Notes</label>
+          <textarea id="p-notes" class="fm-textarea" placeholder="Optional notes..."></textarea>
+        </div>
+        <div class="fm-form-actions">
+          <button class="fm-btn fm-btn-ghost">Cancel</button>
+          <button class="fm-btn fm-btn-primary">Save</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 5 — Table (Food Log style)
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Tables</h2>
+      <p>Matches the <em>Food Log</em> layout (cards wrap tables, row-level Edit/Delete actions).</p>
+      <div class="fm-table-wrap">
+        <table class="fm-table">
+          <thead>
+            <tr>
+              <th>Date/Time</th>
+              <th>Food Item</th>
+              <th>Nutrition Summary</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-04-07 08:30</td>
+              <td>Grilled Chicken Breast</td>
+              <td>220 kcal &middot; 45g protein</td>
+              <td>
+                <div class="fm-row-actions">
+                  <button class="fm-btn fm-btn-edit fm-btn-sm">Edit</button>
+                  <button class="fm-btn fm-btn-danger fm-btn-sm">Delete</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>2026-04-07 12:10</td>
+              <td>Brown Rice Bowl</td>
+              <td>410 kcal &middot; 12g protein</td>
+              <td>
+                <div class="fm-row-actions">
+                  <button class="fm-btn fm-btn-edit fm-btn-sm">Edit</button>
+                  <button class="fm-btn fm-btn-danger fm-btn-sm">Delete</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 6 — Stat tiles (Dashboard metrics / Goal counters)
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Stat Tiles</h2>
+      <p>Used on Dashboard cards and the Goal Management counter row.</p>
+      <div class="fm-grid fm-grid-4">
+        <div class="fm-stat">
+          <div class="fm-stat-label">Total Goals</div>
+          <div class="fm-stat-value">12</div>
+          <div class="fm-stat-hint">since this month</div>
+        </div>
+        <div class="fm-stat">
+          <div class="fm-stat-label">Completed</div>
+          <div class="fm-stat-value">7</div>
+          <div class="fm-stat-hint">58% done</div>
+        </div>
+        <div class="fm-stat">
+          <div class="fm-stat-label">In Progress</div>
+          <div class="fm-stat-value">3</div>
+          <div class="fm-stat-hint">active</div>
+        </div>
+        <div class="fm-stat">
+          <div class="fm-stat-label">Overdue</div>
+          <div class="fm-stat-value">2</div>
+          <div class="fm-stat-hint">needs review</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 7 — Add Water Modal preview
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Add Water Modal</h2>
+      <p>Segmented control (ml / fl oz) + stepper (- Qty +) + modal shell.</p>
+      <div class="fm-modal fm-modal-sm" style="position:static; margin:0;">
+        <div class="fm-modal-header">
+          <h3 class="fm-modal-title">Add Water</h3>
+          <input class="fm-input" type="text" placeholder="Date/Time" style="max-width:180px" />
+        </div>
+        <div class="fm-field">
+          <div class="fm-input-group">
+            <input class="fm-input" type="number" placeholder="Amount" />
+            <div class="fm-segment">
+              <button type="button" class="is-active">ml</button>
+              <button type="button">fl oz</button>
+            </div>
+          </div>
+        </div>
+        <div class="fm-stepper fm-mb-4">
+          <button type="button">-</button>
+          <input class="fm-input" type="number" placeholder="Qty" />
+          <button type="button">+</button>
+        </div>
+        <div class="fm-form-actions is-plain">
+          <button class="fm-btn fm-btn-ghost">Cancel</button>
+          <button class="fm-btn fm-btn-secondary">Submit</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 8 — Notification Drawer
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Notification Drawer</h2>
+      <p>Stacked toast-style cards (matches the <em>Notification Drawer</em> mockup).</p>
+      <div style="max-width:380px">
+        <div class="fm-drawer" style="position:static; inset:auto; width:100%;">
+          <div class="fm-drawer-item">
+            <div class="fm-drawer-item-icon"></div>
+            <div class="fm-drawer-item-title">Notification</div>
+            <div class="fm-drawer-item-meta">11 mins ago</div>
+            <div class="fm-drawer-item-body">Hello, world! This is a toast message.</div>
+          </div>
+          <div class="fm-drawer-item">
+            <div class="fm-drawer-item-icon"></div>
+            <div class="fm-drawer-item-title">Notification</div>
+            <div class="fm-drawer-item-meta">1 hr ago</div>
+            <div class="fm-drawer-item-body">Protein goal crossed 80% — keep going!</div>
+          </div>
+          <div class="fm-drawer-item">
+            <div class="fm-drawer-item-icon"></div>
+            <div class="fm-drawer-item-title">Notification</div>
+            <div class="fm-drawer-item-meta">Yesterday</div>
+            <div class="fm-drawer-item-body">Don't forget today's hydration target.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 9 — Auth card (Login)
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Auth Card (Login)</h2>
+      <p>Centered card matching the <em>Login Page</em> mockup.</p>
+      <div class="fm-auth-card" style="margin:0;">
+        <div class="fm-auth-brand">
+          <img src="../../apps/workouts/static/brand/terrierfit-mark.png" alt="FitMan" />
+          <span>FitMan</span>
+        </div>
+        <h1 class="fm-auth-title">Login</h1>
+        <div class="fm-field">
+          <label class="fm-label" for="l-user">Username</label>
+          <input id="l-user" class="fm-input" type="text" />
+        </div>
+        <div class="fm-field">
+          <label class="fm-label" for="l-pw">Password</label>
+          <input id="l-pw" class="fm-input" type="password" />
+        </div>
+        <button class="fm-btn fm-btn-primary fm-btn-block fm-btn-lg fm-mt-4">Login</button>
+        <div class="fm-grid fm-grid-2 fm-mt-4">
+          <button class="fm-btn fm-btn-secondary fm-btn-block">Register</button>
+          <button class="fm-btn fm-btn-secondary fm-btn-block">Guest</button>
+        </div>
+        <div class="fm-auth-footer">Reset Password</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SECTION 10 — Pills and badges
+         ============================================================ -->
+    <section class="preview-section">
+      <h2>Pills &amp; Badges</h2>
+      <p>For category tags and goal-type filters.</p>
+      <div class="preview-row">
+        <span class="fm-pill">All</span>
+        <span class="fm-pill fm-pill-primary">Strength</span>
+        <span class="fm-pill fm-pill-accent">Cardio</span>
+        <span class="fm-pill">Nutrition</span>
+      </div>
+    </section>
+
+  </body>
+</html>

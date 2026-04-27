@@ -1,25 +1,22 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}{% if mode == "edit" %}Edit{% else %}Add{% endif %} Workout | Fitness Manager{% endblock %}
+{% block title %}{% if mode == "edit" %}Edit Workout{% else %}Add Workout{% endif %} | FitMan{% endblock %}
+{% block page_title %}{% if mode == "edit" %}Edit Workout{% else %}Add Workout{% endif %}{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">{% if mode == "edit" %}Edit{% else %}Add{% endif %} Workout</h1>
-      <p class="subtitle">Keep it lightweight. Name, date, notes. Done.</p>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Keep it lightweight. Name, date, notes. Done.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:list' %}">Back to Workouts</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-          <button class="btn" type="submit">Save</button>
-          <a class="btn btn-ghost" href="{% url 'workouts:list' %}">Cancel</a>
-        </div>
-      </form>
-    </div>
-  </div>
+  <section class="fm-card">
+    <form class="fm-form" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-primary" type="submit">{% if mode == "edit" %}Update{% else %}Save{% endif %}</button>
+        <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:list' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
 {% endblock %}

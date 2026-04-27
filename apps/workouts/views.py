@@ -20,6 +20,190 @@ from .ai import estimate_exercise_calories_ai
 from .utils import classify_exercise, estimate_calories
 
 
+def _dashboard_charts(user, today, *, water_goal_ml: int, recommended_calories):
+    """Build 7-day SVG bar-chart data for the home dashboard cards.
+
+    Returns a dict ready to merge into the template context. All bar
+    coordinates are pre-computed so the template only iterates and renders.
+    """
+    days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    start, end = days[0], days[-1]
+
+    food_by_day = {
+        row["consumed_at__date"]: float(row["total"] or 0)
+        for row in FoodEntry.objects.filter(
+            user=user, consumed_at__date__range=(start, end)
+        ).values("consumed_at__date").annotate(total=Sum("calories"))
+    }
+    burn_by_day = {
+        row["workout__performed_on"]: float(row["total"] or 0)
+        for row in ExerciseEntry.objects.filter(
+            user=user, workout__performed_on__range=(start, end)
+        ).values("workout__performed_on").annotate(total=Sum("calories_burned"))
+    }
+    water_by_day = {
+        row["consumed_at__date"]: int(row["total"] or 0)
+        for row in WaterEntry.objects.filter(
+            user=user, consumed_at__date__range=(start, end)
+        ).values("consumed_at__date").annotate(total=Sum("amount_ml"))
+    }
+    macros_by_day = {
+        row["consumed_at__date"]: row
+        for row in FoodEntry.objects.filter(
+            user=user, consumed_at__date__range=(start, end)
+        ).values("consumed_at__date").annotate(
+            protein=Sum("protein_g"), carbs=Sum("carbs_g"), fat=Sum("fat_g"),
+        )
+    }
+
+    W = 700
+    PAD_L, PAD_R, PAD_T, PAD_B = 16, 16, 14, 28
+
+    def _band_geom(height):
+        plot_w = W - PAD_L - PAD_R
+        plot_h = height - PAD_T - PAD_B
+        band = plot_w / len(days)
+        bar = max(20.0, band * 0.55)
+        return plot_h, band, bar
+
+    # ---------- Calories chart (in vs. out, side-by-side bars) ----------
+    H_CAL = 200
+    plot_h, band_w, bar_w = _band_geom(H_CAL)
+    cal_in = [food_by_day.get(d, 0.0) for d in days]
+    cal_out = [burn_by_day.get(d, 0.0) for d in days]
+    cal_max = max(cal_in + cal_out + [float(recommended_calories or 0), 1.0]) * 1.1
+    half = bar_w / 2 - 1
+    cal_bars = []
+    for i, d in enumerate(days):
+        in_v, out_v = cal_in[i], cal_out[i]
+        in_h = (in_v / cal_max) * plot_h
+        out_h = (out_v / cal_max) * plot_h
+        cx = PAD_L + i * band_w + band_w / 2
+        baseline = PAD_T + plot_h
+        cal_bars.append({
+            "in_x": round(cx - half - 1, 1),
+            "in_y": round(baseline - in_h, 1),
+            "in_w": round(half, 1),
+            "in_h": round(in_h, 1),
+            "in_v": int(in_v),
+            "out_x": round(cx + 1, 1),
+            "out_y": round(baseline - out_h, 1),
+            "out_w": round(half, 1),
+            "out_h": round(out_h, 1),
+            "out_v": int(out_v),
+            "label": d.strftime("%a"),
+            "label_x": round(cx, 1),
+            "is_today": d == today,
+        })
+    calories_chart = {
+        "bars": cal_bars,
+        "width": W,
+        "height": H_CAL,
+        "x0": PAD_L,
+        "x1": W - PAD_R,
+        "baseline_y": PAD_T + plot_h,
+        "label_y": H_CAL - 8,
+        "rec_y": (round(PAD_T + plot_h - (float(recommended_calories) / cal_max) * plot_h, 1)
+                  if recommended_calories else None),
+        "max": int(cal_max),
+    }
+
+    # ---------- Hydration chart (single bars + goal line) ----------
+    H_WTR = 200
+    plot_h, band_w, bar_w = _band_geom(H_WTR)
+    wtr_vals = [water_by_day.get(d, 0) for d in days]
+    wtr_max = max(wtr_vals + [water_goal_ml or 1]) * 1.1
+    wtr_bars = []
+    for i, d in enumerate(days):
+        v = wtr_vals[i]
+        h = (v / wtr_max) * plot_h
+        cx = PAD_L + i * band_w + band_w / 2
+        baseline = PAD_T + plot_h
+        wtr_bars.append({
+            "x": round(cx - bar_w / 2, 1),
+            "y": round(baseline - h, 1),
+            "w": round(bar_w, 1),
+            "h": round(h, 1),
+            "v": v,
+            "label": d.strftime("%a"),
+            "label_x": round(cx, 1),
+            "is_today": d == today,
+        })
+    water_chart = {
+        "bars": wtr_bars,
+        "width": W,
+        "height": H_WTR,
+        "x0": PAD_L,
+        "x1": W - PAD_R,
+        "baseline_y": PAD_T + plot_h,
+        "label_y": H_WTR - 8,
+        "goal_y": (round(PAD_T + plot_h - (water_goal_ml / wtr_max) * plot_h, 1)
+                   if water_goal_ml else None),
+        "max": int(wtr_max),
+    }
+
+    # ---------- Macros chart (stacked P/C/F) ----------
+    H_MAC = 240
+    PAD_T_MAC = PAD_T + 24  # extra room for legend
+    plot_h = H_MAC - PAD_T_MAC - PAD_B
+    plot_w = W - PAD_L - PAD_R
+    band_w = plot_w / len(days)
+    bar_w = max(24.0, band_w * 0.6)
+    mac_rows = []
+    for d in days:
+        row = macros_by_day.get(d, {})
+        mac_rows.append({
+            "p": float(row.get("protein", 0) or 0),
+            "c": float(row.get("carbs", 0) or 0),
+            "f": float(row.get("fat", 0) or 0),
+            "label": d.strftime("%a"),
+            "is_today": d == today,
+        })
+    mac_max = max([r["p"] + r["c"] + r["f"] for r in mac_rows] + [1.0]) * 1.1
+    mac_bars = []
+    for i, m in enumerate(mac_rows):
+        cx = PAD_L + i * band_w + band_w / 2
+        x = cx - bar_w / 2
+        baseline = PAD_T_MAC + plot_h
+        p_h = (m["p"] / mac_max) * plot_h
+        c_h = (m["c"] / mac_max) * plot_h
+        f_h = (m["f"] / mac_max) * plot_h
+        mac_bars.append({
+            "x": round(x, 1),
+            "w": round(bar_w, 1),
+            "p_y": round(baseline - p_h, 1),
+            "p_h": round(p_h, 1),
+            "p_v": int(m["p"]),
+            "c_y": round(baseline - p_h - c_h, 1),
+            "c_h": round(c_h, 1),
+            "c_v": int(m["c"]),
+            "f_y": round(baseline - p_h - c_h - f_h, 1),
+            "f_h": round(f_h, 1),
+            "f_v": int(m["f"]),
+            "total_v": int(m["p"] + m["c"] + m["f"]),
+            "label": m["label"],
+            "label_x": round(cx, 1),
+            "is_today": m["is_today"],
+        })
+    macros_chart = {
+        "bars": mac_bars,
+        "width": W,
+        "height": H_MAC,
+        "x0": PAD_L,
+        "x1": W - PAD_R,
+        "baseline_y": PAD_T_MAC + plot_h,
+        "label_y": H_MAC - 8,
+        "legend_y": PAD_T + 4,
+        "max": int(mac_max),
+    }
+
+    return {
+        "calories_chart": calories_chart,
+        "water_chart": water_chart,
+        "macros_chart": macros_chart,
+    }
+
+
 def _workout_period(period: str):
     today = timezone.localdate()
     if period == "month":
@@ -113,6 +297,11 @@ def home(request):
         "goals": goals,
         "notifications": notifications,
     }
+    context.update(_dashboard_charts(
+        request.user, today,
+        water_goal_ml=water_goal_ml,
+        recommended_calories=recommended_calories,
+    ))
     return render(request, "workouts/home.html", context)
 
 

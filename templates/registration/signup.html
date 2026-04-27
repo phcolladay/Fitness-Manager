@@ -1,27 +1,25 @@
-{% extends "base.html" %}
+{% extends "base_auth.html" %}
 
-{% block title %}Sign up | Fitness Manager{% endblock %}
+{% block title %}Register | FitMan{% endblock %}
+{% block auth_title %}Register{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Sign up</h1>
-      <p class="subtitle">Create your account and keep your data private.</p>
+  <p class="fm-auth-hint fm-auth-hint-top">
+    Username is case-sensitive. Password must be at least 8 characters and cannot be too common.
+  </p>
+  <form class="fm-form" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="fm-auth-actions">
+      <button class="fm-btn fm-btn-primary fm-btn-block" type="submit">Register</button>
+      <a class="fm-btn fm-btn-ghost fm-btn-block" href="{% url 'login' %}">Cancel</a>
     </div>
-  </div>
-  <div class="panel" style="max-width: 560px">
-    <div class="panel-inner">
-    <p class="hint">
-      Username is case-sensitive. Password must be at least 8 characters and cannot be too common.
-    </p>
-    <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <div class="form-actions">
-        <button class="btn" type="submit">Create account</button>
-        <a class="btn btn-ghost" href="{% url 'login' %}">Sign in</a>
-      </div>
-    </form>
-    </div>
-  </div>
+  </form>
+{% endblock %}
+
+{% block auth_footer %}
+  <p class="fm-auth-footer-text">
+    Already have an account?
+    <a href="{% url 'login' %}" class="fm-link">Sign in</a>
+  </p>
 {% endblock %}
