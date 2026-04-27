@@ -1,22 +1,18 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Goals | Fitness Manager{% endblock %}
+{% block title %}Goal Management | FitMan{% endblock %}
+{% block page_title %}Goal Management{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Goals</h1>
-      <p class="subtitle">Set clear targets and stay on track with reminders.</p>
-    </div>
-    <div class="actions">
-      <a class="btn" href="{% url 'goals:add' %}">Add goal</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Set clear targets and stay on track with reminders.</span>
+    <a class="fm-btn fm-btn-primary" href="{% url 'goals:add' %}">Add Goal</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      {% if goals %}
-        <table>
+  <section class="fm-card">
+    {% if goals %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Goal</th>
@@ -24,37 +20,47 @@
               <th>Progress</th>
               <th>Status</th>
               <th>Suggested Exercises</th>
-              <th></th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for goal in goals %}
               <tr>
-                <td style="font-weight:900">{{ goal.name }}</td>
-                <td class="muted">{{ goal.target_value }} {{ goal.unit }}</td>
-                <td class="muted">{{ goal.current_progress }}</td>
-                <td class="muted">{% if goal.active %}Active{% else %}Paused{% endif %}</td>
-                <td class="muted">
-                  {% if goal.recommended_exercises %}
-                    {% for ex in goal.recommended_exercises %}{{ ex.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                <td class="fm-strong">{{ goal.name }}</td>
+                <td class="fm-muted">{{ goal.target_value }} {{ goal.unit }}</td>
+                <td class="fm-muted">{{ goal.current_progress }}</td>
+                <td>
+                  {% if goal.active %}
+                    <span class="fm-pill fm-pill-primary">Active</span>
                   {% else %}
-                    -
+                    <span class="fm-pill">Paused</span>
                   {% endif %}
                 </td>
-                <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{% url 'goals:edit' goal.id %}">Edit</a>
-                  <form method="post" action="{% url 'goals:delete' goal.id %}" style="display:inline">
-                    {% csrf_token %}
-                    <button class="btn btn-ghost" type="submit">Delete</button>
-                  </form>
+                <td class="fm-muted">
+                  {% if goal.recommended_exercises %}
+                    {% for ex in goal.recommended_exercises %}{{ ex.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                  {% else %}-{% endif %}
+                </td>
+                <td class="fm-col-actions">
+                  <div class="fm-row-actions">
+                    <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'goals:edit' goal.id %}">Edit</a>
+                    <form class="fm-inline-form" method="post" action="{% url 'goals:delete' goal.id %}">
+                      {% csrf_token %}
+                      <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No goals yet.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No goals yet</div>
+        <div class="fm-empty-text">Add your first goal — pick a metric, set a target, let reminders do the rest.</div>
+        <a class="fm-btn fm-btn-primary fm-mt-4" href="{% url 'goals:add' %}">Add Goal</a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

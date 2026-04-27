@@ -1,144 +1,173 @@
-﻿{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Dashboard | Fitness Manager{% endblock %}
+{% block title %}Dashboard | FitMan{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Dashboard</h1>
-      <p class="subtitle">Your daily snapshot, without the noise.</p>
-    </div>
-    <div class="actions">
-      <a class="btn" href="{% url 'workouts:add' %}">Add Workout</a>
-    </div>
-  </div>
+  <div class="fm-grid fm-grid-2">
 
-  <div class="grid">
-    <div class="span-4 stat">
-      <div class="k">Calories In</div>
-      <div class="v">{{ calories_in }}</div>
-      <div class="h muted">Today</div>
-    </div>
-    <div class="span-4 stat">
-      <div class="k">Calories Out</div>
-      <div class="v">{{ calories_out }}</div>
-      <div class="h muted">Exercise burn</div>
-    </div>
-    <div class="span-4 stat">
-      <div class="k">Net Calories</div>
-      <div class="v">{{ net_calories }}</div>
-      <div class="h" style="font-weight:800; color:{% if net_calories > 0 %}#dc2626{% elif net_calories < 0 %}#16a34a{% else %}var(--muted){% endif %}">
-        {% if net_calories > 0 %}Surplus{% elif net_calories < 0 %}Deficit{% else %}Balanced{% endif %}
+    {# ---------- Net Calories ---------- #}
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Net Calories</h3>
       </div>
-    </div>
-    <div class="span-4 stat">
-      <div class="k">Recommended Daily Max</div>
-      <div class="v">{% if recommended_calories %}{{ recommended_calories }}{% else %}-{% endif %}</div>
-      <div class="h muted">Based on profile</div>
-    </div>
-    <div class="span-4 stat">
-      <div class="k">Calories vs Max</div>
-      <div class="v">{% if recommended_calories %}{{ calories_in }}/{{ recommended_calories }}{% else %}{{ calories_in }}/-{% endif %}</div>
-      <div class="h muted">Today's intake</div>
-    </div>
-
-    <div class="span-6 panel">
-      <div class="panel-inner">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
-          <h2 style="margin:0; font-family: Fraunces, serif">Active Goals</h2>
-          <a class="btn btn-ghost" href="{% url 'goals:add' %}">Add goal</a>
+      <div class="fm-stack-3">
+        <div class="fm-row-between">
+          <span class="fm-muted">Net Calories</span>
+          <strong>{{ net_calories }}</strong>
         </div>
-        <div style="height: 10px"></div>
-        {% if goals %}
-          <table>
-            <thead>
-              <tr>
-                <th>Goal</th>
-                <th>Target</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for goal in goals %}
-                <tr>
-                  <td>{{ goal.name }}</td>
-                  <td>{{ goal.target_value }} {{ goal.unit }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <p class="muted">No active goals yet.</p>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="span-6 panel">
-      <div class="panel-inner">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
-          <h2 style="margin:0; font-family: Fraunces, serif">Hydration</h2>
-          <a class="btn btn-ghost" href="{% url 'nutrition:water_add' %}">Add water</a>
+        <div class="fm-row-between">
+          <span class="fm-muted">Calories In</span>
+          <span class="fm-strong">{{ calories_in }}</span>
         </div>
-        <div style="height: 10px"></div>
-        <div class="grid" style="grid-template-columns: repeat(12, 1fr)">
-          <div class="span-12 stat" style="margin:0">
-            <div class="k">Water</div>
-            <div class="v">{{ water_total }} ml</div>
-            <div class="h muted">Today - {{ water_progress_pct }}% of {{ water_goal_ml }} ml</div>
+        <div class="fm-row-between">
+          <span class="fm-muted">Calories Out</span>
+          <span class="fm-strong">{{ calories_out }}</span>
+        </div>
+        {% if recommended_calories %}
+          <div class="fm-row-between">
+            <span class="fm-muted">Recommended Daily Max</span>
+            <span class="fm-strong">{{ recommended_calories }}</span>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="span-8 panel">
-      <div class="panel-inner">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
-          <h2 style="margin:0; font-family: Fraunces, serif">Recent Workouts</h2>
-          <a class="btn btn-ghost" href="{% url 'workouts:list' %}">View all</a>
-        </div>
-        <div style="height: 10px"></div>
-        {% if workouts %}
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for workout in workouts %}
-                <tr>
-                  <td><a href="{% url 'workouts:detail' workout.id %}" style="font-weight:800">{{ workout.name }}</a></td>
-                  <td class="muted">{{ workout.performed_on }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <p class="muted">No workouts yet.</p>
         {% endif %}
       </div>
-    </div>
-
-    <div class="span-4 panel">
-      <div class="panel-inner">
-        <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
-          <h2 style="margin:0; font-family: Fraunces, serif">Notifications</h2>
-          <a class="btn btn-ghost" href="{% url 'notifications:list' %}">Open</a>
+      <div class="fm-chart fm-mt-4">
+        <div class="fm-chart-legend">
+          <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-in"></i>Calories in</span>
+          <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-out"></i>Calories out</span>
+          {% if calories_chart.rec_y %}
+            <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-rec"></i>Recommended</span>
+          {% endif %}
         </div>
-        <div style="height: 10px"></div>
-        {% if notifications %}
-          <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px">
-            {% for note in notifications %}
-              <li style="padding:10px 12px; border:1px solid rgba(18,9,11,0.12); border-radius:16px; background: rgba(255,255,255,0.96)">
-                <div style="font-weight:800">{{ note.message }}</div>
-                <div class="muted" style="font-size:12px; margin-top:4px">{{ note.created_at|date:"Y-m-d H:i" }}</div>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="muted">No notifications yet.</p>
-        {% endif %}
+        <svg class="fm-chart-svg" viewBox="0 0 {{ calories_chart.width }} {{ calories_chart.height }}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Last 7 days calories in vs out">
+          <line x1="{{ calories_chart.x0 }}" y1="{{ calories_chart.baseline_y }}" x2="{{ calories_chart.x1 }}" y2="{{ calories_chart.baseline_y }}" class="fm-chart-axis"/>
+          {% if calories_chart.rec_y %}
+            <line x1="{{ calories_chart.x0 }}" y1="{{ calories_chart.rec_y }}" x2="{{ calories_chart.x1 }}" y2="{{ calories_chart.rec_y }}" class="fm-chart-rec-line"/>
+          {% endif %}
+          {% for bar in calories_chart.bars %}
+            <rect x="{{ bar.in_x }}" y="{{ bar.in_y }}" width="{{ bar.in_w }}" height="{{ bar.in_h }}" rx="2" class="fm-chart-bar fm-bar-in{% if bar.is_today %} is-today{% endif %}">
+              <title>{{ bar.label }}: {{ bar.in_v }} kcal in</title>
+            </rect>
+            <rect x="{{ bar.out_x }}" y="{{ bar.out_y }}" width="{{ bar.out_w }}" height="{{ bar.out_h }}" rx="2" class="fm-chart-bar fm-bar-out{% if bar.is_today %} is-today{% endif %}">
+              <title>{{ bar.label }}: {{ bar.out_v }} kcal out</title>
+            </rect>
+            <text x="{{ bar.label_x }}" y="{{ calories_chart.label_y }}" class="fm-chart-label{% if bar.is_today %} is-today{% endif %}">{{ bar.label }}</text>
+          {% endfor %}
+        </svg>
       </div>
-    </div>
+    </section>
+
+    {# ---------- Goals ---------- #}
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Goals</h3>
+        <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'goals:add' %}">Add</a>
+      </div>
+      {% if goals %}
+        <ul class="fm-stack-3 fm-list-reset">
+          {% for goal in goals %}
+            <li class="fm-row-between">
+              <a href="{% url 'goals:edit' goal.id %}" class="fm-strong">{{ goal.name }}</a>
+              <span class="fm-muted">{{ goal.target_value }} {{ goal.unit }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="fm-placeholder-block"></div>
+      {% endif %}
+    </section>
+
+    {# ---------- Hydration ---------- #}
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Hydration</h3>
+        <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'nutrition:water_add' %}">Add</a>
+      </div>
+      <div class="fm-stack-3">
+        <div class="fm-row-between">
+          <span class="fm-muted">Intake Today</span>
+          <strong>{{ water_total }} ml</strong>
+        </div>
+        <div class="fm-row-between">
+          <span class="fm-muted">Daily Goal</span>
+          <span class="fm-strong">{{ water_goal_ml }} ml</span>
+        </div>
+        <div class="fm-row-between">
+          <span class="fm-muted">Progress</span>
+          <span class="fm-strong">{{ water_progress_pct }}%</span>
+        </div>
+      </div>
+      <div class="fm-chart fm-mt-4">
+        <div class="fm-chart-legend">
+          <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-water"></i>Daily intake</span>
+          {% if water_chart.goal_y %}
+            <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-rec"></i>Goal</span>
+          {% endif %}
+        </div>
+        <svg class="fm-chart-svg" viewBox="0 0 {{ water_chart.width }} {{ water_chart.height }}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Last 7 days water intake">
+          <line x1="{{ water_chart.x0 }}" y1="{{ water_chart.baseline_y }}" x2="{{ water_chart.x1 }}" y2="{{ water_chart.baseline_y }}" class="fm-chart-axis"/>
+          {% if water_chart.goal_y %}
+            <line x1="{{ water_chart.x0 }}" y1="{{ water_chart.goal_y }}" x2="{{ water_chart.x1 }}" y2="{{ water_chart.goal_y }}" class="fm-chart-rec-line"/>
+          {% endif %}
+          {% for bar in water_chart.bars %}
+            <rect x="{{ bar.x }}" y="{{ bar.y }}" width="{{ bar.w }}" height="{{ bar.h }}" rx="3" class="fm-chart-bar fm-bar-water{% if bar.is_today %} is-today{% endif %}">
+              <title>{{ bar.label }}: {{ bar.v }} ml</title>
+            </rect>
+            <text x="{{ bar.label_x }}" y="{{ water_chart.label_y }}" class="fm-chart-label{% if bar.is_today %} is-today{% endif %}">{{ bar.label }}</text>
+          {% endfor %}
+        </svg>
+      </div>
+    </section>
+
+    {# ---------- Recent Workouts ---------- #}
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Recent Workouts</h3>
+        <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'workouts:add' %}">Add</a>
+      </div>
+      {% if workouts %}
+        <ul class="fm-stack-3 fm-list-reset">
+          {% for workout in workouts %}
+            <li class="fm-row-between">
+              <a href="{% url 'workouts:detail' workout.id %}" class="fm-strong">{{ workout.name }}</a>
+              <span class="fm-muted">{{ workout.performed_on }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="fm-placeholder-block"></div>
+      {% endif %}
+    </section>
+
+    {# ---------- Nutrient Data (full-width bottom card) ---------- #}
+    <section class="fm-card fm-grid-span-all">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Nutrient Data</h3>
+        <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'nutrition:summary' %}">View</a>
+      </div>
+      <div class="fm-chart">
+        <div class="fm-chart-legend">
+          <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-protein"></i>Protein</span>
+          <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-carbs"></i>Carbs</span>
+          <span class="fm-chart-key"><i class="fm-chart-swatch fm-swatch-fat"></i>Fat</span>
+        </div>
+        <svg class="fm-chart-svg fm-chart-svg-tall" viewBox="0 0 {{ macros_chart.width }} {{ macros_chart.height }}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Last 7 days macros breakdown">
+          <line x1="{{ macros_chart.x0 }}" y1="{{ macros_chart.baseline_y }}" x2="{{ macros_chart.x1 }}" y2="{{ macros_chart.baseline_y }}" class="fm-chart-axis"/>
+          {% for bar in macros_chart.bars %}
+            <rect x="{{ bar.x }}" y="{{ bar.p_y }}" width="{{ bar.w }}" height="{{ bar.p_h }}" class="fm-chart-bar fm-bar-protein{% if bar.is_today %} is-today{% endif %}">
+              <title>{{ bar.label }}: {{ bar.p_v }} g protein</title>
+            </rect>
+            <rect x="{{ bar.x }}" y="{{ bar.c_y }}" width="{{ bar.w }}" height="{{ bar.c_h }}" class="fm-chart-bar fm-bar-carbs{% if bar.is_today %} is-today{% endif %}">
+              <title>{{ bar.label }}: {{ bar.c_v }} g carbs</title>
+            </rect>
+            <rect x="{{ bar.x }}" y="{{ bar.f_y }}" width="{{ bar.w }}" height="{{ bar.f_h }}" rx="2" class="fm-chart-bar fm-bar-fat{% if bar.is_today %} is-today{% endif %}">
+              <title>{{ bar.label }}: {{ bar.f_v }} g fat</title>
+            </rect>
+            <text x="{{ bar.label_x }}" y="{{ macros_chart.label_y }}" class="fm-chart-label{% if bar.is_today %} is-today{% endif %}">{{ bar.label }}</text>
+          {% endfor %}
+        </svg>
+      </div>
+    </section>
+
   </div>
 {% endblock %}

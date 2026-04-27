@@ -1,54 +1,55 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Workout Plans | Fitness Manager{% endblock %}
+{% block title %}Workout Plans | FitMan{% endblock %}
+{% block page_title %}Workout Plans{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Workout Plans</h1>
-      <p class="subtitle">Create and customize training plans by goal focus.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'workouts:list' %}">Back to Workouts</a>
-      <a class="btn" href="{% url 'workouts:plan_add' %}">Add plan</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Create and customize training plans by goal focus.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:list' %}">Back to Exercise</a>
+    <a class="fm-btn fm-btn-primary" href="{% url 'workouts:plan_add' %}">Add Plan</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      {% if plans %}
-        <table>
+  <section class="fm-card">
+    {% if plans %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Name</th>
               <th>Goal Focus</th>
               <th>Sessions/Week</th>
               <th>Details</th>
-              <th></th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for plan in plans %}
               <tr>
-                <td style="font-weight:900">{{ plan.name }}</td>
-                <td class="muted">{{ plan.goal_focus|default:"-" }}</td>
-                <td class="muted">{{ plan.sessions_per_week }}</td>
-                <td class="muted">{{ plan.details|default:"-" }}</td>
-                <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{% url 'workouts:plan_edit' plan.id %}">Edit</a>
-                  <form method="post" action="{% url 'workouts:plan_delete' plan.id %}" style="display:inline">
-                    {% csrf_token %}
-                    <button class="btn btn-ghost" type="submit">Delete</button>
-                  </form>
+                <td class="fm-strong">{{ plan.name }}</td>
+                <td class="fm-muted">{{ plan.goal_focus|default:"-" }}</td>
+                <td class="fm-muted">{{ plan.sessions_per_week }}</td>
+                <td class="fm-muted">{{ plan.details|default:"-" }}</td>
+                <td class="fm-col-actions">
+                  <div class="fm-row-actions">
+                    <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'workouts:plan_edit' plan.id %}">Edit</a>
+                    <form class="fm-inline-form" method="post" action="{% url 'workouts:plan_delete' plan.id %}">
+                      {% csrf_token %}
+                      <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No workout plans yet.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No workout plans yet</div>
+        <div class="fm-empty-text">Build your first weekly training plan with goal focus and frequency.</div>
+        <a class="fm-btn fm-btn-primary fm-mt-4" href="{% url 'workouts:plan_add' %}">Add Plan</a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}
-

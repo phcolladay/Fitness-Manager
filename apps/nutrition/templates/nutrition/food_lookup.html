@@ -1,64 +1,56 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Search USDA Foods | Fitness Manager{% endblock %}
+{% block title %}Search USDA Foods | FitMan{% endblock %}
+{% block page_title %}Search USDA Foods{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Search USDA Foods</h1>
-      <p class="subtitle">Find foods in FoodData Central and auto-fill nutrition values.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Back to Add Food</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Find foods in FoodData Central and auto-fill nutrition values.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:add' %}">Back to Add Food</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      {% if not usda_enabled %}
-        <p class="hint">Food search is currently unavailable. You can still add food manually.</p>
-      {% endif %}
-      <form method="get" data-loading="Searching USDA...">
-        {{ form.as_p }}
-        <div class="form-actions">
-          <button class="btn" type="submit">Search</button>
-          <a class="btn btn-ghost" href="{% url 'nutrition:add' %}">Enter manually</a>
-        </div>
-        <p class="loading-note">Searching USDA...</p>
-      </form>
-    </div>
-  </div>
+  <section class="fm-card">
+    {% if not usda_enabled %}
+      <p class="fm-muted">Food search is currently unavailable. You can still add food manually.</p>
+    {% endif %}
+    <form class="fm-form" method="get">
+      {{ form.as_p }}
+      <div class="fm-form-actions">
+        <button class="fm-btn fm-btn-primary" type="submit">Search</button>
+        <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:add' %}">Enter Manually</a>
+      </div>
+    </form>
+  </section>
 
   {% if results %}
-    <div style="height: 14px"></div>
-    <div class="panel">
-      <div class="panel-inner">
-        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Results</h2>
-        <table>
+    <section class="fm-card fm-mt-4">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Results</h3>
+      </div>
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Description</th>
               <th>Calories</th>
-              <th>Macros</th>
-              <th></th>
+              <th>Macros (P/C/F)</th>
+              <th class="fm-col-actions">Use</th>
             </tr>
           </thead>
           <tbody>
             {% for result in results %}
               <tr>
-                <td style="font-weight:900">{{ result.description }}</td>
-                <td class="muted">{{ result.nutrients.calories }}</td>
-                <td class="muted">
-                  {{ result.nutrients.protein_g }}/{{ result.nutrients.carbs_g }}/{{ result.nutrients.fat_g }}
-                </td>
-                <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{{ result.use_url }}">Use</a>
+                <td class="fm-strong">{{ result.description }}</td>
+                <td class="fm-muted">{{ result.nutrients.calories }}</td>
+                <td class="fm-muted">{{ result.nutrients.protein_g }}/{{ result.nutrients.carbs_g }}/{{ result.nutrients.fat_g }}</td>
+                <td class="fm-col-actions">
+                  <a class="fm-btn fm-btn-secondary fm-btn-sm" href="{{ result.use_url }}">Use</a>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   {% endif %}
 {% endblock %}

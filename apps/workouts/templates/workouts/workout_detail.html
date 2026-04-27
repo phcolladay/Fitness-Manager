@@ -1,58 +1,65 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}{{ workout.name }} | Fitness Manager{% endblock %}
+{% block title %}{{ workout.name }} | FitMan{% endblock %}
+{% block page_title %}{{ workout.name }}{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">{{ workout.name }}</h1>
-      <p class="subtitle">{{ workout.performed_on }}{% if workout.notes %} · {{ workout.notes }}{% endif %}</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'workouts:edit' workout.id %}">Edit workout</a>
-      <form method="post" action="{% url 'workouts:delete' workout.id %}" style="display:inline">
-        {% csrf_token %}
-        <button class="btn btn-ghost" type="submit">Delete workout</button>
-      </form>
-      <a class="btn" href="{% url 'workouts:exercise_add' workout.id %}">Add exercise</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">
+      {{ workout.performed_on }}{% if workout.notes %} · {{ workout.notes }}{% endif %}
+    </span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:list' %}">Back</a>
+    <a class="fm-btn fm-btn-secondary" href="{% url 'workouts:edit' workout.id %}">Edit Workout</a>
+    <form class="fm-inline-form" method="post" action="{% url 'workouts:delete' workout.id %}">
+      {% csrf_token %}
+      <button class="fm-btn fm-btn-danger" type="submit">Delete</button>
+    </form>
+    <a class="fm-btn fm-btn-primary" href="{% url 'workouts:exercise_add' workout.id %}">Add Exercise</a>
   </div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Exercises</h2>
-      {% if workout.exercises.all %}
-        <table>
+  <section class="fm-card">
+    <div class="fm-card-header">
+      <h3 class="fm-card-title">Exercises</h3>
+    </div>
+    {% if workout.exercises.all %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Exercise</th>
               <th>Duration</th>
               <th>Category</th>
               <th>Calories</th>
-              <th></th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for exercise in workout.exercises.all %}
               <tr>
-                <td style="font-weight:900">{{ exercise.exercise_name }}</td>
-                <td class="muted">{{ exercise.duration_minutes }} min</td>
-                <td class="muted">{% if exercise.category %}{{ exercise.category }}{% else %}-{% endif %}</td>
-                <td class="muted">{% if exercise.calories_burned %}{{ exercise.calories_burned }}{% else %}-{% endif %}</td>
-                <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{% url 'workouts:exercise_edit' workout.id exercise.id %}">Edit</a>
-                  <form method="post" action="{% url 'workouts:exercise_delete' workout.id exercise.id %}" style="display:inline">
-                    {% csrf_token %}
-                    <button class="btn btn-ghost" type="submit">Delete</button>
-                  </form>
+                <td class="fm-strong">{{ exercise.exercise_name }}</td>
+                <td class="fm-muted">{{ exercise.duration_minutes }} min</td>
+                <td class="fm-muted">{% if exercise.category %}{{ exercise.category }}{% else %}-{% endif %}</td>
+                <td class="fm-muted">{% if exercise.calories_burned %}{{ exercise.calories_burned }}{% else %}-{% endif %}</td>
+                <td class="fm-col-actions">
+                  <div class="fm-row-actions">
+                    <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'workouts:exercise_edit' workout.id exercise.id %}">Edit</a>
+                    <form class="fm-inline-form" method="post" action="{% url 'workouts:exercise_delete' workout.id exercise.id %}">
+                      {% csrf_token %}
+                      <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No exercises yet.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No exercises yet</div>
+        <div class="fm-empty-text">Add your first exercise — name, duration, and an optional AI calorie estimate.</div>
+        <a class="fm-btn fm-btn-primary fm-mt-4" href="{% url 'workouts:exercise_add' workout.id %}">Add Exercise</a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

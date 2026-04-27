@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}FitMan{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'fitman.css' %}?v=stage2" />
+  </head>
+  <body class="fm-body">
+    <div class="fm-layout">
+      <aside class="fm-sidebar">
+        <a class="fm-sidebar-brand" href="{% url 'workouts:home' %}">
+          <img src="{% static 'brand/terrierfit-mark.png' %}" alt="FitMan" />
+          <span>FitMan</span>
+        </a>
+        {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
+          <nav class="fm-sidebar-nav" aria-label="Primary">
+            <a href="{% url 'workouts:home' %}"
+               class="fm-sidebar-link{% if ns == 'workouts' and name == 'home' %} is-active{% endif %}"
+               aria-label="Dashboard">
+              <span class="fm-sidebar-label-full">Dashboard</span>
+              <span class="fm-sidebar-label-mobile">Home</span>
+            </a>
+            <a href="{% url 'nutrition:list' %}"
+               class="fm-sidebar-link{% if ns == 'nutrition' %} is-active{% endif %}"
+               aria-label="Nutrition">
+              <span>Nutrition</span>
+            </a>
+            <a href="{% url 'workouts:list' %}"
+               class="fm-sidebar-link{% if ns == 'workouts' and name != 'home' %} is-active{% endif %}"
+               aria-label="Exercise">
+              <span>Exercise</span>
+            </a>
+            <a href="{% url 'profiles:body_metrics' %}"
+               class="fm-sidebar-link{% if ns == 'profiles' and name != 'profile' %} is-active{% endif %}"
+               aria-label="Body Metrics">
+              <span class="fm-sidebar-label-full">Body Metrics</span>
+              <span class="fm-sidebar-label-mobile">Metrics</span>
+            </a>
+            <a href="{% url 'goals:list' %}"
+               class="fm-sidebar-link{% if ns == 'goals' %} is-active{% endif %}"
+               aria-label="Goal Management">
+              <span class="fm-sidebar-label-full">Goal Management</span>
+              <span class="fm-sidebar-label-mobile">Goals</span>
+            </a>
+          </nav>
+        {% endwith %}
+      </aside>
+
+      <div class="fm-main-wrap">
+        <header class="fm-topbar">
+          <div class="fm-topbar-left">
+            <h1 class="fm-topbar-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            {% block subnav %}{% endblock %}
+          </div>
+
+          <div class="fm-topbar-right">
+            <a href="{% url 'notifications:list' %}"
+               class="fm-icon-btn{% if request.resolver_match.namespace == 'notifications' %} is-active{% endif %}"
+               aria-label="Notifications">
+              {% include 'icons/bell.svg' %}
+              {% if unread_notification_count %}
+                <span class="fm-badge">{{ unread_notification_count }}</span>
+              {% endif %}
+            </a>
+
+            <a href="{% url 'profiles:profile' %}"
+               class="fm-user{% if request.resolver_match.namespace == 'profiles' and request.resolver_match.url_name == 'profile' %} is-active{% endif %}">
+              <div class="fm-avatar">{% include 'icons/user.svg' %}</div>
+              <span class="fm-user-name">{{ user.username|default:"User Name" }}</span>
+            </a>
+
+            {% if user.is_authenticated %}
+              <form method="post" action="{% url 'logout' %}" class="fm-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="fm-icon-btn" aria-label="Sign out" title="Sign out">
+                  {% include 'icons/logout.svg' %}
+                </button>
+              </form>
+            {% endif %}
+          </div>
+        </header>
+
+        <main class="fm-main">
+          {% if messages %}
+            <div class="fm-messages">
+              {% for message in messages %}
+                <div class="fm-message">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+
+    {% block drawers %}{% endblock %}
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

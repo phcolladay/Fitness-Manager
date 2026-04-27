@@ -8,23 +8,37 @@ from apps.workouts.models import ExerciseEntry, Workout
 from apps.workouts.models import ExerciseLibrary
 
 
-def _date_range(goal_start: date) -> tuple[date, date]:
-    end = timezone.localdate()
-    start = goal_start or end - timedelta(days=7)
-    return start, end
-
-
-def _datetime_range(start: date, end: date) -> tuple[datetime, datetime]:
-    start_dt = timezone.make_aware(datetime.combine(start, time.min))
-    end_dt = timezone.make_aware(datetime.combine(end, time.max))
+def _today_range() -> tuple[datetime, datetime]:
+    """Return datetime range covering today only."""
+    today = timezone.localdate()
+    start_dt = timezone.make_aware(datetime.combine(today, time.min))
+    end_dt = timezone.make_aware(datetime.combine(today, time.max))
     return start_dt, end_dt
+
+
+def _week_range() -> tuple[date, date]:
+    """Return date range covering the current ISO week (Mon–Sun)."""
+    today = timezone.localdate()
+    start = today - timedelta(days=today.weekday())  # Monday
+    return start, today
 
 
 def calculate_goal_progress(goal) -> float:
     if not getattr(goal, "user_id", None):
         return 0.0
-    start, end = _date_range(goal.start_date)
-    start_dt, end_dt = _datetime_range(start, end)
+
+    # Daily goals: only count today's data
+    daily_types = {"calories", "net_calories", "protein", "carbs", "fat", "water"}
+    # Weekly goals: count current week's data
+    weekly_types = {"workout_minutes", "workouts_per_week"}
+
+    if goal.goal_type in daily_types:
+        start_dt, end_dt = _today_range()
+    elif goal.goal_type in weekly_types:
+        week_start, week_end = _week_range()
+    else:
+        return 0.0
+
     if goal.goal_type == "calories":
         total = (
             FoodEntry.objects.filter(user=goal.user, consumed_at__range=(start_dt, end_dt)).aggregate(
@@ -34,6 +48,7 @@ def calculate_goal_progress(goal) -> float:
         )
         return float(total)
     if goal.goal_type == "net_calories":
+        today = timezone.localdate()
         calories_in = (
             FoodEntry.objects.filter(user=goal.user, consumed_at__range=(start_dt, end_dt)).aggregate(
                 total=Sum("calories")
@@ -41,7 +56,7 @@ def calculate_goal_progress(goal) -> float:
             or 0
         )
         calories_out = (
-            ExerciseEntry.objects.filter(user=goal.user, workout__performed_on__range=(start, end)).aggregate(
+            ExerciseEntry.objects.filter(user=goal.user, workout__performed_on=today).aggregate(
                 total=Sum("calories_burned")
             )["total"]
             or 0
@@ -81,7 +96,7 @@ def calculate_goal_progress(goal) -> float:
         return float(total)
     if goal.goal_type == "workout_minutes":
         total = (
-            ExerciseEntry.objects.filter(user=goal.user, workout__performed_on__range=(start, end)).aggregate(
+            ExerciseEntry.objects.filter(user=goal.user, workout__performed_on__range=(week_start, week_end)).aggregate(
                 total=Sum("duration_minutes")
             )["total"]
             or 0
@@ -89,7 +104,7 @@ def calculate_goal_progress(goal) -> float:
         return float(total)
     if goal.goal_type == "workouts_per_week":
         total = (
-            Workout.objects.filter(user=goal.user, performed_on__range=(start, end))
+            Workout.objects.filter(user=goal.user, performed_on__range=(week_start, week_end))
             .values("performed_on")
             .distinct()
             .count()

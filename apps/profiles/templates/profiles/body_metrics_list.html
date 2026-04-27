@@ -1,82 +1,82 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Body Metrics | Fitness Manager{% endblock %}
+{% block title %}Body Metrics | FitMan{% endblock %}
+{% block page_title %}Body Metrics{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Body Metrics</h1>
-      <p class="subtitle">Track weight and measurements over time.</p>
-    </div>
-    <div class="actions">
-      <a class="btn" href="{% url 'profiles:body_metrics_add' %}">Add entry</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Track weight and measurements over time.</span>
+    <a class="fm-btn fm-btn-primary" href="{% url 'profiles:body_metrics_add' %}">Add Entry</a>
   </div>
 
-  <div class="grid">
-    <div class="span-3 stat">
-      <div class="k">Daily Avg Weight</div>
-      <div class="v">{% if summaries.daily %}{{ summaries.daily|floatformat:1 }}{% else %}-{% endif %}</div>
-      <div class="h">Today (kg)</div>
+  <div class="fm-grid fm-grid-4">
+    <div class="fm-stat">
+      <div class="fm-stat-label">Daily Avg Weight</div>
+      <div class="fm-stat-value">{% if summaries.daily %}{{ summaries.daily|floatformat:1 }}{% else %}-{% endif %}</div>
+      <div class="fm-stat-hint">Today (kg)</div>
     </div>
-    <div class="span-3 stat">
-      <div class="k">Weekly Avg Weight</div>
-      <div class="v">{% if summaries.weekly %}{{ summaries.weekly|floatformat:1 }}{% else %}-{% endif %}</div>
-      <div class="h">Last 7 days (kg)</div>
+    <div class="fm-stat">
+      <div class="fm-stat-label">Weekly Avg Weight</div>
+      <div class="fm-stat-value">{% if summaries.weekly %}{{ summaries.weekly|floatformat:1 }}{% else %}-{% endif %}</div>
+      <div class="fm-stat-hint">Last 7 days (kg)</div>
     </div>
-    <div class="span-3 stat">
-      <div class="k">Monthly Avg Weight</div>
-      <div class="v">{% if summaries.monthly %}{{ summaries.monthly|floatformat:1 }}{% else %}-{% endif %}</div>
-      <div class="h">Last 30 days (kg)</div>
+    <div class="fm-stat">
+      <div class="fm-stat-label">Monthly Avg Weight</div>
+      <div class="fm-stat-value">{% if summaries.monthly %}{{ summaries.monthly|floatformat:1 }}{% else %}-{% endif %}</div>
+      <div class="fm-stat-hint">Last 30 days (kg)</div>
     </div>
-    <div class="span-3 stat">
-      <div class="k">Trend</div>
-      <div class="v">
-        {% if trend is not None %}
-          {% if trend > 0 %}+{% endif %}{{ trend|floatformat:1 }}
-        {% else %}
-          -
-        {% endif %}
+    <div class="fm-stat">
+      <div class="fm-stat-label">Trend</div>
+      <div class="fm-stat-value">
+        {% if trend is not None %}{% if trend > 0 %}+{% endif %}{{ trend|floatformat:1 }}{% else %}-{% endif %}
       </div>
-      <div class="h">Latest vs previous (kg)</div>
+      <div class="fm-stat-hint">Latest vs previous (kg)</div>
     </div>
   </div>
 
-  <div style="height: 14px"></div>
-  <div class="panel">
-    <div class="panel-inner">
-      {% if entries %}
-        <table>
+  <section class="fm-card fm-mt-5">
+    <div class="fm-card-header">
+      <h3 class="fm-card-title">Entries</h3>
+    </div>
+    {% if entries %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Date</th>
               <th>Weight</th>
               <th>Waist/Chest/Hip</th>
               <th>Body Fat %</th>
-              <th></th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for e in entries %}
               <tr>
-                <td class="muted">{{ e.measured_on }}</td>
-                <td style="font-weight:900">{{ e.weight_kg }} kg</td>
-                <td class="muted">{{ e.waist_cm|default:"-" }}/{{ e.chest_cm|default:"-" }}/{{ e.hip_cm|default:"-" }}</td>
-                <td class="muted">{{ e.body_fat_pct|default:"-" }}</td>
-                <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{% url 'profiles:body_metrics_edit' e.id %}">Edit</a>
-                  <form method="post" action="{% url 'profiles:body_metrics_delete' e.id %}" style="display:inline">
-                    {% csrf_token %}
-                    <button class="btn btn-ghost" type="submit">Delete</button>
-                  </form>
+                <td class="fm-muted">{{ e.measured_on }}</td>
+                <td class="fm-strong">{{ e.weight_kg }} kg</td>
+                <td class="fm-muted">{{ e.waist_cm|default:"-" }}/{{ e.chest_cm|default:"-" }}/{{ e.hip_cm|default:"-" }}</td>
+                <td class="fm-muted">{{ e.body_fat_pct|default:"-" }}</td>
+                <td class="fm-col-actions">
+                  <div class="fm-row-actions">
+                    <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'profiles:body_metrics_edit' e.id %}">Edit</a>
+                    <form class="fm-inline-form" method="post" action="{% url 'profiles:body_metrics_delete' e.id %}">
+                      {% csrf_token %}
+                      <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No body metrics yet.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No body metrics yet</div>
+        <div class="fm-empty-text">Log your first weight or measurement entry to start tracking trends.</div>
+        <a class="fm-btn fm-btn-primary fm-mt-4" href="{% url 'profiles:body_metrics_add' %}">Add Entry</a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

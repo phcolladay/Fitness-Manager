@@ -1,75 +1,85 @@
-﻿{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Water | Fitness Manager{% endblock %}
+{% block title %}Water | FitMan{% endblock %}
+{% block page_title %}Water{% endblock %}
+
+{% block subnav %}
+  <div class="fm-subnav" role="tablist" aria-label="Period">
+    <a class="fm-subnav-link{% if period == 'day' %} is-active{% endif %}" href="{% url 'nutrition:water_list' %}?period=day">Day</a>
+    <a class="fm-subnav-link{% if period == 'week' %} is-active{% endif %}" href="{% url 'nutrition:water_list' %}?period=week">Week</a>
+    <a class="fm-subnav-link{% if period == 'month' %} is-active{% endif %}" href="{% url 'nutrition:water_list' %}?period=month">Month</a>
+  </div>
+{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Water</h1>
-      <p class="subtitle">Hydration entries, period summaries, and unit-friendly logging.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:water_list' %}?period=day">Day</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:water_list' %}?period=week">Week</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:water_list' %}?period=month">Month</a>
-      <a class="btn" href="{% url 'nutrition:water_add' %}">Add water</a>
-    </div>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Hydration entries, period summaries, and unit-friendly logging.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:list' %}">Food</a>
+    <a class="fm-btn fm-btn-primary" href="{% url 'nutrition:water_add' %}">Add Water</a>
   </div>
 
-  <div class="grid">
-    <div class="span-4 stat">
-      <div class="k">Today Total</div>
-      <div class="v">{{ today_total }} ml</div>
-      <div class="h">{{ progress_pct }}% of {{ water_goal_ml }} ml goal</div>
+  <div class="fm-grid fm-grid-3">
+    <div class="fm-stat">
+      <div class="fm-stat-label">Today Total</div>
+      <div class="fm-stat-value">{{ today_total }} ml</div>
+      <div class="fm-stat-hint">{{ progress_pct }}% of {{ water_goal_ml }} ml goal</div>
     </div>
-    <div class="span-4 stat">
-      <div class="k">Today Total (oz)</div>
-      <div class="v">{{ today_total_oz }}</div>
-      <div class="h">{{ today_total }} ml = {{ today_total_oz }} oz</div>
+    <div class="fm-stat">
+      <div class="fm-stat-label">Today Total (oz)</div>
+      <div class="fm-stat-value">{{ today_total_oz }}</div>
+      <div class="fm-stat-hint">{{ today_total }} ml = {{ today_total_oz }} oz</div>
     </div>
-    <div class="span-4 stat">
-      <div class="k">{{ period|title }} Total</div>
-      <div class="v">{{ period_total }} ml</div>
-      <div class="h">
-        {{ period_total_oz }} oz -
+    <div class="fm-stat">
+      <div class="fm-stat-label">{{ period|title }} Total</div>
+      <div class="fm-stat-value">{{ period_total }} ml</div>
+      <div class="fm-stat-hint">
+        {{ period_total_oz }} oz ·
         {% if period_trend_ml > 0 %}+{% endif %}{{ period_trend_ml|floatformat:0 }} ml vs previous {{ period }}
       </div>
     </div>
   </div>
-  <div style="height: 14px"></div>
 
-  <div class="panel">
-    <div class="panel-inner">
-      {% if entries %}
-        <table>
+  <section class="fm-card fm-mt-5">
+    <div class="fm-card-header">
+      <h3 class="fm-card-title">Entries</h3>
+    </div>
+    {% if entries %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Amount (ml)</th>
               <th>Approx (oz)</th>
               <th>Time</th>
-              <th></th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for entry in entries %}
               <tr>
-                <td style="font-weight:900">{{ entry.amount_ml }}</td>
-                <td class="muted">{{ entry.amount_oz }}</td>
-                <td class="muted">{{ entry.consumed_at|date:"Y-m-d H:i" }}</td>
-                <td style="text-align:right">
-                  <a class="btn btn-ghost" href="{% url 'nutrition:water_edit' entry.id %}">Edit</a>
-                  <form method="post" action="{% url 'nutrition:water_delete' entry.id %}" style="display:inline">
-                    {% csrf_token %}
-                    <button class="btn btn-ghost" type="submit">Delete</button>
-                  </form>
+                <td class="fm-strong">{{ entry.amount_ml }}</td>
+                <td class="fm-muted">{{ entry.amount_oz }}</td>
+                <td class="fm-muted">{{ entry.consumed_at|date:"Y-m-d H:i" }}</td>
+                <td class="fm-col-actions">
+                  <div class="fm-row-actions">
+                    <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'nutrition:water_edit' entry.id %}">Edit</a>
+                    <form class="fm-inline-form" method="post" action="{% url 'nutrition:water_delete' entry.id %}">
+                      {% csrf_token %}
+                      <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
-      {% else %}
-        <p class="muted">No water entries yet for this period.</p>
-      {% endif %}
-    </div>
-  </div>
+      </div>
+    {% else %}
+      <div class="fm-empty">
+        <div class="fm-empty-title">No water entries yet</div>
+        <div class="fm-empty-text">Add your first water entry to start tracking hydration.</div>
+        <a class="fm-btn fm-btn-primary fm-mt-4" href="{% url 'nutrition:water_add' %}">Add Water</a>
+      </div>
+    {% endif %}
+  </section>
 {% endblock %}

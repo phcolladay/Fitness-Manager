@@ -1,50 +1,52 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 
-{% block title %}Nutrition Summary | Fitness Manager{% endblock %}
+{% block title %}Nutrition Summary | FitMan{% endblock %}
+{% block page_title %}Nutrition Summary{% endblock %}
+
+{% block subnav %}
+  <div class="fm-subnav" role="tablist" aria-label="Period">
+    <a class="fm-subnav-link{% if period == 'day' %} is-active{% endif %}" href="{% url 'nutrition:summary' %}?period=day">Day</a>
+    <a class="fm-subnav-link{% if period == 'week' %} is-active{% endif %}" href="{% url 'nutrition:summary' %}?period=week">Week</a>
+    <a class="fm-subnav-link{% if period == 'month' %} is-active{% endif %}" href="{% url 'nutrition:summary' %}?period=month">Month</a>
+  </div>
+{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <h1 class="title">Nutrition Summary</h1>
-      <p class="subtitle">See calories, macros, micronutrients, and hydration by day, week, or month.</p>
+  <div class="fm-page-actions">
+    <span class="fm-page-actions-left">Calories, macros, micronutrients, and hydration by day, week, or month.</span>
+    <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:list' %}">Back to List</a>
+  </div>
+
+  <div class="fm-grid fm-grid-4">
+    <div class="fm-stat">
+      <div class="fm-stat-label">Calories In</div>
+      <div class="fm-stat-value">{{ calories_in }}</div>
+      <div class="fm-stat-hint">{{ period|title }}</div>
     </div>
-    <div class="actions">
-      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=day">Day</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=week">Week</a>
-      <a class="btn btn-ghost" href="{% url 'nutrition:summary' %}?period=month">Month</a>
-      <a class="btn" href="{% url 'nutrition:list' %}">Back to list</a>
+    <div class="fm-stat">
+      <div class="fm-stat-label">Calories Out</div>
+      <div class="fm-stat-value">{{ calories_out }}</div>
+      <div class="fm-stat-hint">{{ period|title }}</div>
+    </div>
+    <div class="fm-stat">
+      <div class="fm-stat-label">Net Calories</div>
+      <div class="fm-stat-value">{{ net }}</div>
+      <div class="fm-stat-hint">{{ net_state|title }}</div>
+    </div>
+    <div class="fm-stat">
+      <div class="fm-stat-label">Water</div>
+      <div class="fm-stat-value">{{ water_total }} ml</div>
+      <div class="fm-stat-hint">{{ water_goal_ml }} ml goal/day</div>
     </div>
   </div>
 
-  <div class="grid">
-    <div class="span-3 stat">
-      <div class="k">Calories In</div>
-      <div class="v">{{ calories_in }}</div>
-      <div class="h">{{ period }}</div>
-    </div>
-    <div class="span-3 stat">
-      <div class="k">Calories Out</div>
-      <div class="v">{{ calories_out }}</div>
-      <div class="h">{{ period }}</div>
-    </div>
-    <div class="span-3 stat">
-      <div class="k">Net Calories</div>
-      <div class="v">{{ net }}</div>
-      <div class="h" style="font-weight:800">{{ net_state|title }}</div>
-    </div>
-    <div class="span-3 stat">
-      <div class="k">Water</div>
-      <div class="v">{{ water_total }} ml</div>
-      <div class="h">{{ water_goal_ml }} ml goal/day</div>
-    </div>
-  </div>
-
-  <div style="height: 14px"></div>
-  <div class="grid">
-    <div class="span-6 panel">
-      <div class="panel-inner">
-        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Macros vs Daily Targets</h2>
-        <table>
+  <div class="fm-grid fm-grid-2 fm-mt-5">
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Macros vs Daily Targets</h3>
+      </div>
+      <div class="fm-table-wrap">
+        <table class="fm-table">
           <thead>
             <tr>
               <th>Nutrient</th>
@@ -62,13 +64,15 @@
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <div class="span-6 panel">
-      <div class="panel-inner">
-        <h2 style="margin:0 0 12px; font-family: Fraunces, serif">Micronutrients From Logged Foods</h2>
-        {% if micros_total %}
-          <table>
+    <section class="fm-card">
+      <div class="fm-card-header">
+        <h3 class="fm-card-title">Micronutrients From Logged Foods</h3>
+      </div>
+      {% if micros_total %}
+        <div class="fm-table-wrap">
+          <table class="fm-table">
             <thead>
               <tr>
                 <th>Micronutrient</th>
@@ -77,33 +81,22 @@
               </tr>
             </thead>
             <tbody>
-              {% for key, value in micros_total.items %}
+              {% for item in micros_display %}
                 <tr>
-                  <td>{{ key }}</td>
-                  <td>{{ value|floatformat:2 }}</td>
-                  <td>
-                    {% if key == "fiber_g" %}
-                      {{ micro_recommended.fiber_g }}
-                    {% elif key == "sodium_mg" %}
-                      {{ micro_recommended.sodium_mg }}
-                    {% elif key == "iron_mg" %}
-                      {{ micro_recommended.iron_mg }}
-                    {% elif key == "calcium_mg" %}
-                      {{ micro_recommended.calcium_mg }}
-                    {% elif key == "vitamin_c_mg" %}
-                      {{ micro_recommended.vitamin_c_mg }}
-                    {% else %}
-                      -
-                    {% endif %}
-                  </td>
+                  <td>{{ item.label }}</td>
+                  <td>{{ item.value|floatformat:2 }}</td>
+                  <td>{% if item.reference %}{{ item.reference }}{% else %}-{% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
-        {% else %}
-          <p class="muted">No micronutrient data logged for this period.</p>
-        {% endif %}
-      </div>
-    </div>
+        </div>
+      {% else %}
+        <div class="fm-empty">
+          <div class="fm-empty-title">No micronutrient data</div>
+          <div class="fm-empty-text">Logged foods for this period don’t contain micronutrient details.</div>
+        </div>
+      {% endif %}
+    </section>
   </div>
 {% endblock %}
