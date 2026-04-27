@@ -107,8 +107,13 @@ class PlaywrightUserFlowsTests(StaticLiveServerTestCase):
             reverse("nutrition:water_list"),
             reverse("workouts:list"),
             reverse("profiles:body_metrics"),
+            reverse("profiles:body_metrics_add"),
             reverse("profiles:profile"),
             reverse("goals:list"),
+            reverse("goals:add"),
+            reverse("workouts:add"),
+            reverse("nutrition:add"),
+            reverse("nutrition:water_add"),
             reverse("notifications:list"),
         ]
 

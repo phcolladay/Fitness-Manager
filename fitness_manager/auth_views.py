@@ -107,6 +107,7 @@ def guest_login(request):
             seed_showcase_data(user)
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             request.session.set_expiry(0)  # expire on browser close
+            request.session["guest_showcase_data_ready"] = True
             messages.info(
                 request,
                 "You are using a guest account with sample data. Create an account to keep your own data long-term.",

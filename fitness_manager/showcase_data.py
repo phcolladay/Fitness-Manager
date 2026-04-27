@@ -21,6 +21,19 @@ DEMO_USERNAME = "demo"
 DEMO_PASSWORD = "demo12345"
 
 
+def is_guest_user(user) -> bool:
+    username_field = getattr(user, "USERNAME_FIELD", "username")
+    identifier = getattr(user, username_field, "") or ""
+    return str(identifier).startswith("guest_")
+
+
+def ensure_guest_showcase_data(user) -> bool:
+    if not is_guest_user(user) or _has_user_showcase_rows(user):
+        return False
+    seed_showcase_data(user, reset=False)
+    return True
+
+
 @dataclass(frozen=True)
 class ShowcaseSeedSummary:
     body_measurements: int
@@ -168,6 +181,17 @@ def _clear_user_showcase_data(user) -> None:
     WaterEntry.objects.filter(user=user).delete()
     BodyMeasurement.objects.filter(user=user).delete()
     Goal.objects.filter(user=user).delete()
+
+
+def _has_user_showcase_rows(user) -> bool:
+    return (
+        FoodEntry.objects.filter(user=user).exists()
+        or WaterEntry.objects.filter(user=user).exists()
+        or Workout.objects.filter(user=user).exists()
+        or Goal.objects.filter(user=user).exists()
+        or BodyMeasurement.objects.filter(user=user).exists()
+        or Notification.objects.filter(user=user).exists()
+    )
 
 
 def _seed_profile(user) -> None:

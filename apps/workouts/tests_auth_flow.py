@@ -125,6 +125,18 @@ class AuthFlowTests(TestCase):
 
         self.assertFalse(get_user_model().objects.filter(id=stale.id).exists())
 
+    def test_existing_guest_session_without_data_is_backfilled(self):
+        guest = get_user_model().objects.create_user(username="guest_empty1234")
+        self.client.force_login(guest)
+
+        response = self.client.get(reverse("workouts:home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertGreaterEqual(FoodEntry.objects.filter(user=guest).count(), 80)
+        self.assertGreaterEqual(Workout.objects.filter(user=guest).count(), 10)
+        self.assertGreaterEqual(Goal.objects.filter(user=guest).count(), 5)
+        self.assertTrue(self.client.session.get("guest_showcase_data_ready"))
+
     @override_settings(
         EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
         DEFAULT_FROM_EMAIL="noreply@example.com",
