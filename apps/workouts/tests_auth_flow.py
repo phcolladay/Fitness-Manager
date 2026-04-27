@@ -9,6 +9,11 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from apps.goals.models import Goal
+from apps.notifications.models import Notification
+from apps.nutrition.models import FoodEntry, WaterEntry
+from apps.profiles.models import BodyMeasurement, UserProfile
+from apps.workouts.models import ExerciseEntry, Workout, WorkoutPlan
 from fitness_manager.auth_views import ResilientPasswordResetView
 from fitness_manager.forms import SignupForm
 
@@ -97,6 +102,15 @@ class AuthFlowTests(TestCase):
         user_id = int(self.client.session["_auth_user_id"])
         guest_user = get_user_model().objects.get(id=user_id)
         self.assertTrue(guest_user.username.startswith("guest_"))
+        self.assertTrue(UserProfile.objects.filter(user=guest_user).exists())
+        self.assertGreaterEqual(FoodEntry.objects.filter(user=guest_user).count(), 80)
+        self.assertGreaterEqual(WaterEntry.objects.filter(user=guest_user).count(), 60)
+        self.assertGreaterEqual(Workout.objects.filter(user=guest_user).count(), 10)
+        self.assertGreaterEqual(ExerciseEntry.objects.filter(user=guest_user).count(), 30)
+        self.assertGreaterEqual(WorkoutPlan.objects.filter(user=guest_user).count(), 3)
+        self.assertGreaterEqual(Goal.objects.filter(user=guest_user).count(), 5)
+        self.assertGreaterEqual(Notification.objects.filter(user=guest_user).count(), 8)
+        self.assertGreaterEqual(BodyMeasurement.objects.filter(user=guest_user).count(), 25)
 
         logout_response = self.client.post(reverse("logout"))
         self.assertEqual(logout_response.status_code, 302)

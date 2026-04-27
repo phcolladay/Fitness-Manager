@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 
 from apps.profiles.models import UserProfile
 from .forms import SignupForm
+from .showcase_data import seed_showcase_data
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +104,13 @@ def guest_login(request):
             if hasattr(user, "set_unusable_password"):
                 user.set_unusable_password()
             user.save()
+            seed_showcase_data(user)
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             request.session.set_expiry(0)  # expire on browser close
-            messages.info(request, "You are using a guest account. Create an account to keep your data long-term.")
+            messages.info(
+                request,
+                "You are using a guest account with sample data. Create an account to keep your own data long-term.",
+            )
             break
     else:
         messages.error(request, "Guest login is temporarily unavailable. Please try again.")

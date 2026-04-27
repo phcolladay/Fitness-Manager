@@ -28,6 +28,7 @@ The application is designed for straightforward deployment on a single virtual s
 - Email-first registration with optional username entry.
 - Login with either email address or username.
 - Password reset through configured SMTP email delivery.
+- Guest access with persisted showcase data generated for each guest account.
 - Authenticated dashboard with calories in, calories out, net calories, hydration, workouts, active goals, and notifications.
 - Workout sessions, exercise entries, exercise library, and workout plans.
 - Nutrition entries through manual input, USDA lookup, text-based AI estimation, and photo-based AI estimation.
@@ -222,6 +223,8 @@ password: demo12345
 ```
 
 The script clears and recreates demo rows for the demo user so that dashboards, lists, charts, goals, notifications, and edit screens have realistic data.
+
+Guest login uses the same showcase-data generator. Each guest account receives persisted database rows for profile, body metrics, nutrition, hydration, workouts, goals, and notifications, while still remaining isolated from other users.
 
 ## Testing and Quality Gates
 
