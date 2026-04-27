@@ -51,7 +51,7 @@
               <th>Workout</th>
               <th>Date</th>
               <th>Trend Signal</th>
-              <th style="text-align:right">Actions</th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -66,7 +66,7 @@
                     <span class="fm-pill">No exercises</span>
                   {% endif %}
                 </td>
-                <td style="text-align:right">
+                <td class="fm-col-actions">
                   <a class="fm-btn fm-btn-secondary fm-btn-sm" href="{% url 'workouts:detail' workout.id %}">Open</a>
                 </td>
               </tr>

@@ -1,16 +1,21 @@
+import logging
 import secrets
 from datetime import timedelta
 
 from django.contrib import messages
-from django.contrib.auth import get_user_model, login
-from django.contrib.auth import logout
+from django.contrib.auth import get_user_model, login, logout
+from django.contrib.auth.views import PasswordResetView
+from django.db import transaction
 from django.shortcuts import redirect, render
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from apps.profiles.models import UserProfile
 from .forms import SignupForm
+
+logger = logging.getLogger(__name__)
 
 
 def _cleanup_stale_guest_users(max_age_hours: int = 24) -> None:
@@ -35,13 +40,14 @@ def signup(request):
     if request.method == "POST":
         form = SignupForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            profile, _ = UserProfile.objects.get_or_create(user=user)
-            profile.sex = form.cleaned_data.get("sex", "")
-            profile.age_years = form.cleaned_data.get("age_years")
-            profile.height_cm = form.cleaned_data.get("height_cm")
-            profile.weight_kg = form.cleaned_data.get("weight_kg")
-            profile.save()
+            with transaction.atomic():
+                user = form.save()
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.sex = form.cleaned_data.get("sex", "")
+                profile.age_years = form.cleaned_data.get("age_years")
+                profile.height_cm = form.cleaned_data.get("height_cm")
+                profile.weight_kg = form.cleaned_data.get("weight_kg")
+                profile.save()
             # Multiple auth backends are configured; set backend explicitly for session login.
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             return redirect("workouts:home")
@@ -49,6 +55,25 @@ def signup(request):
     else:
         form = SignupForm()
     return render(request, "registration/signup.html", {"form": form})
+
+
+class ResilientPasswordResetView(PasswordResetView):
+    template_name = "registration/password_reset_form.html"
+    email_template_name = "registration/password_reset_email.txt"
+    subject_template_name = "registration/password_reset_subject.txt"
+    html_email_template_name = "registration/password_reset_email.html"
+    success_url = reverse_lazy("password_reset_done")
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception:  # noqa: BLE001
+            logger.exception("Password reset email delivery failed.")
+            messages.error(
+                self.request,
+                "We couldn't send the reset email right now. Please try again later.",
+            )
+            return self.render_to_response(self.get_context_data(form=form))
 
 
 @require_POST

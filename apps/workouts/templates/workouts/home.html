@@ -64,7 +64,7 @@
         <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'goals:add' %}">Add</a>
       </div>
       {% if goals %}
-        <ul class="fm-stack-3" style="list-style:none; padding:0; margin:0;">
+        <ul class="fm-stack-3 fm-list-reset">
           {% for goal in goals %}
             <li class="fm-row-between">
               <a href="{% url 'goals:edit' goal.id %}" class="fm-strong">{{ goal.name }}</a>
@@ -126,7 +126,7 @@
         <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'workouts:add' %}">Add</a>
       </div>
       {% if workouts %}
-        <ul class="fm-stack-3" style="list-style:none; padding:0; margin:0;">
+        <ul class="fm-stack-3 fm-list-reset">
           {% for workout in workouts %}
             <li class="fm-row-between">
               <a href="{% url 'workouts:detail' workout.id %}" class="fm-strong">{{ workout.name }}</a>
@@ -140,7 +140,7 @@
     </section>
 
     {# ---------- Nutrient Data (full-width bottom card) ---------- #}
-    <section class="fm-card" style="grid-column: 1 / -1;">
+    <section class="fm-card fm-grid-span-all">
       <div class="fm-card-header">
         <h3 class="fm-card-title">Nutrient Data</h3>
         <a class="fm-btn fm-btn-accent fm-btn-sm" href="{% url 'nutrition:summary' %}">View</a>

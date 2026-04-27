@@ -47,7 +47,7 @@
               <th>Weight</th>
               <th>Waist/Chest/Hip</th>
               <th>Body Fat %</th>
-              <th style="text-align:right">Actions</th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -57,10 +57,10 @@
                 <td class="fm-strong">{{ e.weight_kg }} kg</td>
                 <td class="fm-muted">{{ e.waist_cm|default:"-" }}/{{ e.chest_cm|default:"-" }}/{{ e.hip_cm|default:"-" }}</td>
                 <td class="fm-muted">{{ e.body_fat_pct|default:"-" }}</td>
-                <td style="text-align:right">
+                <td class="fm-col-actions">
                   <div class="fm-row-actions">
                     <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'profiles:body_metrics_edit' e.id %}">Edit</a>
-                    <form method="post" action="{% url 'profiles:body_metrics_delete' e.id %}" style="display:inline">
+                    <form class="fm-inline-form" method="post" action="{% url 'profiles:body_metrics_delete' e.id %}">
                       {% csrf_token %}
                       <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
                     </form>

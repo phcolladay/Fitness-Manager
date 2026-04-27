@@ -34,7 +34,7 @@
               <th>Description</th>
               <th>Calories</th>
               <th>Macros (P/C/F)</th>
-              <th style="text-align:right">Use</th>
+              <th class="fm-col-actions">Use</th>
             </tr>
           </thead>
           <tbody>
@@ -43,7 +43,7 @@
                 <td class="fm-strong">{{ result.description }}</td>
                 <td class="fm-muted">{{ result.nutrients.calories }}</td>
                 <td class="fm-muted">{{ result.nutrients.protein_g }}/{{ result.nutrients.carbs_g }}/{{ result.nutrients.fat_g }}</td>
-                <td style="text-align:right">
+                <td class="fm-col-actions">
                   <a class="fm-btn fm-btn-secondary fm-btn-sm" href="{{ result.use_url }}">Use</a>
                 </td>
               </tr>

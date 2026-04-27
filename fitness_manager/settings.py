@@ -93,6 +93,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "fitness_manager.wsgi.application"
+TEST_RUNNER = "fitness_manager.test_utils.PatchedDiscoverRunner"
 
 
 # Database
@@ -210,32 +211,35 @@ SESSION_SAVE_EVERY_REQUEST = True
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("DJANGO_DATA_UPLOAD_MAX_MEMORY_SIZE", str(10 * 1024 * 1024)))
 FOOD_PHOTO_MAX_UPLOAD_SIZE = int(os.getenv("FOOD_PHOTO_MAX_UPLOAD_SIZE", str(5 * 1024 * 1024)))
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "fitness_manager.email_backends.SESEmailBackend")
-
-# AWS SES API configuration
-SES_REGION = os.getenv("SES_REGION", "us-east-1")
-SES_FROM_EMAIL = os.getenv("SES_FROM_EMAIL", "")
-SES_MAX_RETRIES = int(os.getenv("SES_MAX_RETRIES", "2"))
-SES_RETRY_BACKOFF_SECONDS = float(os.getenv("SES_RETRY_BACKOFF_SECONDS", "0.6"))
-
-# Optional SMTP configuration for fallback/custom backend usage.
-EMAIL_HOST = os.getenv("EMAIL_HOST", "")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+# Email delivery uses the configured commercial SMTP mailbox.
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "notify@terrierfit.com")
+DEFAULT_NOTIFICATION_EMAIL = os.getenv("DEFAULT_NOTIFICATION_EMAIL", DEFAULT_FROM_EMAIL)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "mail.privateemail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "465"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "1") == "1"
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "0") == "1"
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "0") == "1"
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "1") == "1"
 EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT_SECONDS", "10"))
 
 if EMAIL_USE_TLS and EMAIL_USE_SSL:
     raise RuntimeError("EMAIL_USE_TLS and EMAIL_USE_SSL cannot both be enabled.")
 if DJANGO_ENV == "production" and EMAIL_BACKEND.endswith("console.EmailBackend"):
     print("WARNING: EMAIL_BACKEND is console in production. Password reset emails will not be delivered.")
-if DJANGO_ENV == "production" and not (SES_FROM_EMAIL or os.getenv("DEFAULT_FROM_EMAIL", "")):
-    print("WARNING: SES_FROM_EMAIL/DEFAULT_FROM_EMAIL is empty. Email sending will fail.")
-
-DEFAULT_FROM_EMAIL = SES_FROM_EMAIL or os.getenv("DEFAULT_FROM_EMAIL", "noreply@localhost")
-DEFAULT_NOTIFICATION_EMAIL = os.getenv("DEFAULT_NOTIFICATION_EMAIL", DEFAULT_FROM_EMAIL)
+if DJANGO_ENV == "production" and EMAIL_BACKEND.endswith("smtp.EmailBackend"):
+    missing_email_settings = [
+        name
+        for name, value in {
+            "EMAIL_HOST": EMAIL_HOST,
+            "EMAIL_HOST_USER": EMAIL_HOST_USER,
+            "EMAIL_HOST_PASSWORD": EMAIL_HOST_PASSWORD,
+            "DEFAULT_FROM_EMAIL": DEFAULT_FROM_EMAIL,
+        }.items()
+        if not value
+    ]
+    if missing_email_settings:
+        print(f"WARNING: Missing SMTP email settings: {', '.join(missing_email_settings)}")
 
 CSRF_TRUSTED_ORIGINS = [
     o.strip()

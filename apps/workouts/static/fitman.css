@@ -181,7 +181,7 @@ img { display: block; max-width: 100%; }
   font-size: var(--fm-fs-xl);
   font-weight: 700;
   color: var(--fm-text);
-  letter-spacing: -0.3px;
+  letter-spacing: 0;
 }
 
 .fm-sidebar-nav {
@@ -205,6 +205,7 @@ img { display: block; max-width: 100%; }
   background: var(--fm-primary-soft);
   color: var(--fm-text);
 }
+.fm-sidebar-label-mobile { display: none; }
 
 /* ---------- Topbar ---------- */
 .fm-topbar {
@@ -232,7 +233,7 @@ img { display: block; max-width: 100%; }
   font-size: var(--fm-fs-xl);
   font-weight: 700;
   color: var(--fm-text);
-  letter-spacing: -0.3px;
+  letter-spacing: 0;
 }
 
 .fm-topbar-subnav {
@@ -449,6 +450,8 @@ img { display: block; max-width: 100%; }
 .fm-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .fm-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .fm-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.fm-profile-layout { grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr); }
+.fm-grid-span-all { grid-column: 1 / -1; }
 
 /* ---------- Page actions row (sits above content cards) ---------- */
 .fm-page-actions {
@@ -951,7 +954,7 @@ img { display: block; max-width: 100%; }
   font-weight: 600;
   color: var(--fm-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0;
 }
 .fm-stat-value {
   font-size: var(--fm-fs-2xl);
@@ -1011,7 +1014,7 @@ img { display: block; max-width: 100%; }
   font-size: var(--fm-fs-2xl);
   font-weight: 700;
   color: var(--fm-text);
-  letter-spacing: -0.5px;
+  letter-spacing: 0;
 }
 .fm-auth-title {
   margin: 0 0 var(--fm-space-8);
@@ -1087,6 +1090,13 @@ img { display: block; max-width: 100%; }
 .fm-strong   { font-weight: 700; }
 .fm-center   { text-align: center; }
 .fm-right    { text-align: right; }
+.fm-col-actions { text-align: right; }
+.fm-inline-form { display: inline; }
+.fm-list-reset {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
 .fm-mt-0 { margin-top: 0; }
 .fm-mt-2 { margin-top: var(--fm-space-2); }
@@ -1115,22 +1125,97 @@ img { display: block; max-width: 100%; }
   .fm-main { padding: var(--fm-space-5); }
   .fm-topbar { padding: 0 var(--fm-space-5); }
   .fm-grid-2, .fm-grid-3, .fm-grid-4 { grid-template-columns: 1fr; }
+  .fm-profile-layout { grid-template-columns: 1fr; }
   .fm-field-row { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  .fm-layout { grid-template-columns: 1fr; }
+  .fm-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
   .fm-sidebar {
-    flex-direction: row;
-    overflow-x: auto;
-    padding: var(--fm-space-3);
+    flex: 0 0 auto;
+    width: 100%;
+    display: block;
+    overflow-x: hidden;
+    padding: var(--fm-space-3) var(--fm-space-4);
     border-right: none;
     border-bottom: 1px solid var(--fm-border);
   }
-  .fm-sidebar-nav { flex-direction: row; }
+  .fm-sidebar-nav {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+  }
   .fm-sidebar-brand { display: none; }
+  .fm-sidebar-link {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 48px;
+    max-width: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--fm-space-2) 5px;
+    font-size: var(--fm-fs-xs);
+    line-height: 1.15;
+    white-space: normal;
+    text-align: center;
+    overflow: visible;
+    text-overflow: clip;
+  }
+  .fm-sidebar-label-full { display: none; }
+  .fm-sidebar-label-mobile { display: inline; }
+  .fm-main-wrap { min-height: 0; }
   .fm-user-name { display: none; }
-  .fm-topbar-left { gap: var(--fm-space-4); }
+  .fm-topbar {
+    min-height: var(--fm-topbar-h);
+    height: auto;
+    flex-wrap: wrap;
+    align-content: center;
+    row-gap: var(--fm-space-2);
+    padding-top: var(--fm-space-3);
+    padding-bottom: var(--fm-space-3);
+  }
+  .fm-topbar-left {
+    display: contents;
+  }
+  .fm-topbar-title {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: var(--fm-fs-lg);
+    line-height: 1.15;
+    overflow-wrap: break-word;
+  }
+  .fm-topbar-right {
+    order: 2;
+    gap: var(--fm-space-2);
+  }
+  .fm-subnav {
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
+    margin-left: 0;
+    overflow-x: auto;
+  }
+  .fm-subnav-link {
+    flex: 1 0 auto;
+    text-align: center;
+  }
+  .fm-page-actions {
+    align-items: stretch;
+  }
+  .fm-page-actions-left {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+  .fm-card {
+    padding: var(--fm-space-4);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

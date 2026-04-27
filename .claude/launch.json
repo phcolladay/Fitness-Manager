@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "django",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["manage.py", "runserver", "8888"],
+      "port": 8888,
+      "env": {
+        "DJANGO_DEBUG": "1",
+        "DJANGO_ALLOWED_HOSTS": "localhost,127.0.0.1"
+      }
+    }
+  ]
+}

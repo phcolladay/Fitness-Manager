@@ -1,0 +1,19 @@
+[run]
+branch = True
+source =
+    apps
+    fitness_manager
+omit =
+    */migrations/*
+    */tests*.py
+    */test*.py
+    manage.py
+
+[report]
+show_missing = True
+skip_covered = True
+fail_under = 70
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError

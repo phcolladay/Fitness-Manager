@@ -21,7 +21,7 @@
               <th>Calories</th>
               <th>Macros (P/C/F)</th>
               <th>Time</th>
-              <th style="text-align:right">Actions</th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -31,10 +31,10 @@
                 <td class="fm-muted">{{ food.calories }}</td>
                 <td class="fm-muted">{{ food.protein_g }}/{{ food.carbs_g }}/{{ food.fat_g }}</td>
                 <td class="fm-muted">{{ food.consumed_at|date:"Y-m-d H:i" }}</td>
-                <td style="text-align:right">
+                <td class="fm-col-actions">
                   <div class="fm-row-actions">
                     <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'nutrition:edit' food.id %}">Edit</a>
-                    <form method="post" action="{% url 'nutrition:delete' food.id %}" style="display:inline">
+                    <form class="fm-inline-form" method="post" action="{% url 'nutrition:delete' food.id %}">
                       {% csrf_token %}
                       <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
                     </form>

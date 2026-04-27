@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}FitMan{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'fitman.css' %}?v=stage1" />
+    <link rel="stylesheet" href="{% static 'fitman.css' %}?v=stage2" />
   </head>
   <body class="fm-body">
     <div class="fm-layout">
@@ -17,15 +17,33 @@
         {% with ns=request.resolver_match.namespace name=request.resolver_match.url_name %}
           <nav class="fm-sidebar-nav" aria-label="Primary">
             <a href="{% url 'workouts:home' %}"
-               class="fm-sidebar-link{% if ns == 'workouts' and name == 'home' %} is-active{% endif %}">Dashboard</a>
+               class="fm-sidebar-link{% if ns == 'workouts' and name == 'home' %} is-active{% endif %}"
+               aria-label="Dashboard">
+              <span class="fm-sidebar-label-full">Dashboard</span>
+              <span class="fm-sidebar-label-mobile">Home</span>
+            </a>
             <a href="{% url 'nutrition:list' %}"
-               class="fm-sidebar-link{% if ns == 'nutrition' %} is-active{% endif %}">Nutrition</a>
+               class="fm-sidebar-link{% if ns == 'nutrition' %} is-active{% endif %}"
+               aria-label="Nutrition">
+              <span>Nutrition</span>
+            </a>
             <a href="{% url 'workouts:list' %}"
-               class="fm-sidebar-link{% if ns == 'workouts' and name != 'home' %} is-active{% endif %}">Exercise</a>
+               class="fm-sidebar-link{% if ns == 'workouts' and name != 'home' %} is-active{% endif %}"
+               aria-label="Exercise">
+              <span>Exercise</span>
+            </a>
             <a href="{% url 'profiles:body_metrics' %}"
-               class="fm-sidebar-link{% if ns == 'profiles' and name != 'profile' %} is-active{% endif %}">Body Metrics</a>
+               class="fm-sidebar-link{% if ns == 'profiles' and name != 'profile' %} is-active{% endif %}"
+               aria-label="Body Metrics">
+              <span class="fm-sidebar-label-full">Body Metrics</span>
+              <span class="fm-sidebar-label-mobile">Metrics</span>
+            </a>
             <a href="{% url 'goals:list' %}"
-               class="fm-sidebar-link{% if ns == 'goals' %} is-active{% endif %}">Goal Management</a>
+               class="fm-sidebar-link{% if ns == 'goals' %} is-active{% endif %}"
+               aria-label="Goal Management">
+              <span class="fm-sidebar-label-full">Goal Management</span>
+              <span class="fm-sidebar-label-mobile">Goals</span>
+            </a>
           </nav>
         {% endwith %}
       </aside>

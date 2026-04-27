@@ -34,10 +34,10 @@ TerrierFit is a Django-based fitness tracking app focused on daily consistency: 
 | Database | SQLite (local dev) / PostgreSQL 16 (production) |
 | AI Integration | OpenAI Responses API (`gpt-4o-mini` / configurable) |
 | External Data | USDA FoodData Central API |
-| Email | AWS SES v2 (password reset + notifications) |
+| Email | Commercial SMTP (password reset + notifications) |
 | Deployment | Gunicorn + Nginx + systemd (EC2) or Docker Compose |
 
-Key Python dependencies: `Django`, `Pillow`, `boto3`, `requests`, `psycopg2-binary`, `gunicorn`.
+Key Python dependencies: `Django`, `Pillow`, `requests`, `psycopg2-binary`, `gunicorn`.
 
 ## Architecture Overview
 
@@ -74,7 +74,7 @@ TerrierFit is a **monolithic Django application** composed of five feature apps 
                          │ SQLite (dev) / PostgreSQL  │
                          └────────────────────────────┘
 
-External services:  USDA FoodData · OpenAI Responses API · AWS SES
+External services:  USDA FoodData · OpenAI Responses API · SMTP
 ```
 
 ## Repository Structure
@@ -86,8 +86,6 @@ Fitness-Manager/
 │   ├── urls.py                # Root URL routing
 │   ├── auth_views.py          # Signup, guest login, logout
 │   ├── auth_backends.py       # Email-or-username authentication backend
-│   ├── email_service.py       # AWS SES v2 client
-│   ├── email_backends.py      # Django email backend wrapper for SES
 │   └── forms.py               # Auth forms (signup, login)
 │
 ├── apps/                      # Feature apps
@@ -227,18 +225,18 @@ Three AI features, all consuming the OpenAI Responses API (`temperature=0.1–0.
 2. **Text-based meal estimate** — meal description converted into macros/micros JSON.
 3. **Exercise calorie estimate** — given exercise name, duration, category, muscle group, and weight, returns `calories_burned`. Falls back to category-based per-minute rates if the API is unavailable.
 
-### AWS SES v2 (`fitness_manager/email_service.py`)
-- Wrapped by `SESEmailBackend` so Django's `send_mail` and `PasswordResetView` dispatch through SES.
-- Supports To/Cc/Bcc/Reply-To, text + HTML bodies, exponential-backoff retry.
-- Credentials via IAM Role (preferred in production) or static access keys from env vars.
+### Email Delivery
+- Email is sent through Django's built-in SMTP backend.
+- Namecheap Private Email uses `mail.privateemail.com` with port `465` and SSL in the current deployment.
+- `DEFAULT_FROM_EMAIL` and `DEFAULT_NOTIFICATION_EMAIL` are both expected to use `notify@terrierfit.com`.
 
 ## Authentication Flow
 
 - **Custom backend** (`EmailOrUsernameModelBackend`) allows login with either email or username (case-insensitive), then falls back to the default `ModelBackend`.
-- **Signup** creates a `User` and a linked `UserProfile` in one transaction, then auto-logs in.
+- **Signup** supports email-first registration, auto-generates a unique username when omitted, creates a `User` and linked `UserProfile` in one transaction, then auto-logs in.
 - **Guest login** (POST only) creates a random `guest_<hex>` user with an unusable password; stale guest accounts older than 24h are cleaned up on each guest login.
 - **Sessions** default to a 2-hour idle timeout (`DJANGO_SESSION_TIMEOUT_SECONDS`) and refresh on every request.
-- **Password reset** uses Django's built-in views with SES-backed email delivery.
+- **Password reset** uses a guarded Django password reset view with SMTP-backed email delivery.
 
 ## Core Business Logic
 
@@ -297,8 +295,7 @@ Set these in `.env`:
 - `USDA_API_KEY` — USDA food search
 - `OPENAI_API_KEY` — AI estimates (photo, text, exercise calories)
 - `OPENAI_MODEL` — e.g. `gpt-4.1-mini`, `gpt-4o-mini`
-- `SES_REGION`, `SES_FROM_EMAIL`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` — AWS SES email delivery
-- `DATABASE_URL` — optional PostgreSQL connection string for production
+- `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `EMAIL_USE_SSL` — SMTP email delivery
 
 If keys are missing, those features remain visible but may return no results / fallback behavior.
 

@@ -10,7 +10,7 @@
     </span>
     <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:list' %}">Back</a>
     <a class="fm-btn fm-btn-secondary" href="{% url 'workouts:edit' workout.id %}">Edit Workout</a>
-    <form method="post" action="{% url 'workouts:delete' workout.id %}" style="display:inline">
+    <form class="fm-inline-form" method="post" action="{% url 'workouts:delete' workout.id %}">
       {% csrf_token %}
       <button class="fm-btn fm-btn-danger" type="submit">Delete</button>
     </form>
@@ -30,7 +30,7 @@
               <th>Duration</th>
               <th>Category</th>
               <th>Calories</th>
-              <th style="text-align:right">Actions</th>
+              <th class="fm-col-actions">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -40,10 +40,10 @@
                 <td class="fm-muted">{{ exercise.duration_minutes }} min</td>
                 <td class="fm-muted">{% if exercise.category %}{{ exercise.category }}{% else %}-{% endif %}</td>
                 <td class="fm-muted">{% if exercise.calories_burned %}{{ exercise.calories_burned }}{% else %}-{% endif %}</td>
-                <td style="text-align:right">
+                <td class="fm-col-actions">
                   <div class="fm-row-actions">
                     <a class="fm-btn fm-btn-ghost fm-btn-sm" href="{% url 'workouts:exercise_edit' workout.id exercise.id %}">Edit</a>
-                    <form method="post" action="{% url 'workouts:exercise_delete' workout.id exercise.id %}" style="display:inline">
+                    <form class="fm-inline-form" method="post" action="{% url 'workouts:exercise_delete' workout.id exercise.id %}">
                       {% csrf_token %}
                       <button class="fm-btn fm-btn-danger fm-btn-sm" type="submit">Delete</button>
                     </form>
