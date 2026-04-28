@@ -20,6 +20,11 @@ from .ai import estimate_exercise_calories_ai
 from .utils import classify_exercise, estimate_calories
 
 
+CALORIE_ESTIMATE_AI = "ai"
+CALORIE_ESTIMATE_FALLBACK = "fallback"
+CALORIE_ESTIMATE_SKIPPED = "skipped"
+
+
 def _dashboard_charts(user, today, *, water_goal_ml: int, recommended_calories):
     """Build 7-day SVG bar-chart data for the home dashboard cards.
 
@@ -225,9 +230,11 @@ def _populate_classification(exercise: ExerciseEntry) -> None:
         exercise.auto_classified = True
 
 
-def _estimate_calories_with_ai_or_fallback(*, exercise: ExerciseEntry, user) -> bool:
-    if exercise.calories_burned or not exercise.duration_minutes:
-        return False
+def _estimate_calories_with_ai_or_fallback(*, exercise: ExerciseEntry, user, force: bool = False) -> str:
+    if exercise.calories_burned is not None and not force:
+        return CALORIE_ESTIMATE_SKIPPED
+    if not exercise.duration_minutes:
+        return CALORIE_ESTIMATE_SKIPPED
     profile, _ = UserProfile.objects.get_or_create(user=user)
     weight = float(profile.weight_kg) if profile.weight_kg is not None else None
     ai_estimate = estimate_exercise_calories_ai(
@@ -239,9 +246,32 @@ def _estimate_calories_with_ai_or_fallback(*, exercise: ExerciseEntry, user) -> 
     )
     if ai_estimate is not None:
         exercise.calories_burned = ai_estimate
-        return True
+        return CALORIE_ESTIMATE_AI
     exercise.calories_burned = estimate_calories(exercise.category, exercise.duration_minutes)
-    return False
+    return CALORIE_ESTIMATE_FALLBACK
+
+
+def _validate_calorie_estimate_request(form: ExerciseEntryForm) -> bool:
+    valid = True
+    duration = form.cleaned_data.get("duration_minutes")
+
+    if duration is None or duration <= 0:
+        form.add_error("duration_minutes", "Enter duration minutes greater than 0 before estimating calories.")
+        valid = False
+
+    return valid
+
+
+def _add_calorie_estimate_message(request, estimate_source: str) -> None:
+    if estimate_source == CALORIE_ESTIMATE_AI:
+        messages.success(request, "AI estimate added to calories. You can edit before saving.")
+    elif estimate_source == CALORIE_ESTIMATE_FALLBACK:
+        messages.info(
+            request,
+            "AI estimate unavailable. A standard estimate was applied from category and duration.",
+        )
+    else:
+        messages.info(request, "Calories were not changed.")
 
 
 def _exercise_prefill_query(data: dict) -> str:
@@ -395,9 +425,20 @@ def exercise_add(request, workout_id: int):
         if "ai_estimate" in request.POST:
             form = ExerciseEntryForm(request.POST)
             if form.is_valid():
+                if not _validate_calorie_estimate_request(form):
+                    messages.error(request, "Please fix highlighted fields before requesting an AI estimate.")
+                    return render(
+                        request,
+                        "workouts/exercise_form.html",
+                        {"form": form, "workout": workout},
+                    )
                 estimate_candidate = form.save(commit=False)
                 _populate_classification(estimate_candidate)
-                ai_used = _estimate_calories_with_ai_or_fallback(exercise=estimate_candidate, user=request.user)
+                estimate_source = _estimate_calories_with_ai_or_fallback(
+                    exercise=estimate_candidate,
+                    user=request.user,
+                    force=True,
+                )
                 prefill = {
                     "exercise_name": estimate_candidate.exercise_name,
                     "category": estimate_candidate.category or "",
@@ -405,10 +446,7 @@ def exercise_add(request, workout_id: int):
                     "duration_minutes": estimate_candidate.duration_minutes,
                     "calories_burned": estimate_candidate.calories_burned,
                 }
-                if ai_used:
-                    messages.success(request, "AI estimate added to calories. You can edit before saving.")
-                else:
-                    messages.info(request, "AI unavailable. Used standard calorie estimate.")
+                _add_calorie_estimate_message(request, estimate_source)
                 query = _exercise_prefill_query(prefill)
                 url = reverse("workouts:exercise_add", kwargs={"workout_id": workout.id})
                 if query:
@@ -452,9 +490,20 @@ def exercise_edit(request, workout_id: int, exercise_id: int):
         if "ai_estimate" in request.POST:
             form = ExerciseEntryForm(request.POST, instance=exercise)
             if form.is_valid():
+                if not _validate_calorie_estimate_request(form):
+                    messages.error(request, "Please fix highlighted fields before requesting an AI estimate.")
+                    return render(
+                        request,
+                        "workouts/exercise_form.html",
+                        {"form": form, "workout": workout, "mode": "edit"},
+                    )
                 estimate_candidate = form.save(commit=False)
                 _populate_classification(estimate_candidate)
-                ai_used = _estimate_calories_with_ai_or_fallback(exercise=estimate_candidate, user=request.user)
+                estimate_source = _estimate_calories_with_ai_or_fallback(
+                    exercise=estimate_candidate,
+                    user=request.user,
+                    force=True,
+                )
                 prefill = {
                     "exercise_name": estimate_candidate.exercise_name,
                     "category": estimate_candidate.category or "",
@@ -462,10 +511,7 @@ def exercise_edit(request, workout_id: int, exercise_id: int):
                     "duration_minutes": estimate_candidate.duration_minutes,
                     "calories_burned": estimate_candidate.calories_burned,
                 }
-                if ai_used:
-                    messages.success(request, "AI estimate added to calories. You can edit before saving.")
-                else:
-                    messages.info(request, "AI unavailable. Used standard calorie estimate.")
+                _add_calorie_estimate_message(request, estimate_source)
                 query = _exercise_prefill_query(prefill)
                 url = reverse("workouts:exercise_edit", kwargs={"workout_id": workout.id, "exercise_id": exercise.id})
                 if query:

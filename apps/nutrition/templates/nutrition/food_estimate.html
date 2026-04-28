@@ -14,7 +14,9 @@
       {% csrf_token %}
       {{ form.as_p }}
       <div class="fm-form-actions">
-        <button class="fm-btn fm-btn-primary" type="submit">Get Estimate</button>
+        <button class="fm-btn fm-btn-primary" type="submit" data-ai-submit data-loading-text="Estimating...">
+          Get Estimate
+        </button>
         <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:add' %}">Enter Manually</a>
       </div>
     </form>

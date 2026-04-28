@@ -17,7 +17,16 @@
       {% csrf_token %}
       {{ form.as_p }}
       <div class="fm-form-actions">
-        <button class="fm-btn fm-btn-accent" type="submit" name="ai_estimate" value="1">AI Estimate Calories</button>
+        <button
+          class="fm-btn fm-btn-accent"
+          type="submit"
+          name="ai_estimate"
+          value="1"
+          data-ai-submit
+          data-loading-text="Estimating..."
+        >
+          AI Estimate Calories
+        </button>
         <button class="fm-btn fm-btn-primary" type="submit">{% if mode == "edit" %}Update{% else %}Save{% endif %}</button>
         <a class="fm-btn fm-btn-ghost" href="{% url 'workouts:detail' workout.id %}">Cancel</a>
       </div>

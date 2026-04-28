@@ -573,6 +573,23 @@ img { display: block; max-width: 100%; }
   opacity: 0.55;
   cursor: not-allowed;
 }
+.fm-btn.is-loading {
+  cursor: wait;
+  opacity: 0.8;
+}
+.fm-btn-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  animation: fm-spin 700ms linear infinite;
+}
+@keyframes fm-spin {
+  to { transform: rotate(360deg); }
+}
 
 .fm-btn-primary {
   background: var(--fm-primary);
@@ -1235,4 +1252,5 @@ img { display: block; max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   .fm-btn, .fm-sidebar-link, .fm-icon-btn { transition: none; }
+  .fm-btn-spinner { animation: none; }
 }

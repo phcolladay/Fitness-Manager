@@ -91,6 +91,63 @@ class ExerciseAIEstimateFlowTests(TestCase):
         query = parse_qs(urlparse(response["Location"]).query)
         self.assertEqual(query.get("calories_burned"), ["321.5"])
 
+    @patch("apps.workouts.views.estimate_exercise_calories_ai")
+    def test_ai_estimate_button_requires_positive_duration(self, ai):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        response = self.client.post(
+            url,
+            {
+                "exercise_name": "Jump Squats",
+                "category": "strength",
+                "muscle_group": "legs",
+                "duration_minutes": 0,
+                "calories_burned": "",
+                "ai_estimate": "1",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Enter duration minutes greater than 0 before estimating calories.")
+        self.assertEqual(ExerciseEntry.objects.count(), 0)
+        ai.assert_not_called()
+
+    @patch("apps.workouts.views.estimate_exercise_calories_ai", return_value=None)
+    def test_ai_estimate_button_prefills_fallback_when_ai_unavailable(self, _ai):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        response = self.client.post(
+            url,
+            {
+                "exercise_name": "Jump Squats",
+                "category": "strength",
+                "muscle_group": "legs",
+                "duration_minutes": 20,
+                "calories_burned": "",
+                "ai_estimate": "1",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ExerciseEntry.objects.count(), 0)
+        query = parse_qs(urlparse(response["Location"]).query)
+        self.assertEqual(query.get("calories_burned"), ["120.0"])
+
+    @patch("apps.workouts.views.estimate_exercise_calories_ai", return_value=222.0)
+    def test_ai_estimate_button_replaces_existing_calories(self, _ai):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        response = self.client.post(
+            url,
+            {
+                "exercise_name": "Jump Rope",
+                "category": "cardio",
+                "muscle_group": "full body",
+                "duration_minutes": 15,
+                "calories_burned": "50",
+                "ai_estimate": "1",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(ExerciseEntry.objects.count(), 0)
+        query = parse_qs(urlparse(response["Location"]).query)
+        self.assertEqual(query.get("calories_burned"), ["222.0"])
+
     @patch("apps.workouts.views.estimate_exercise_calories_ai", return_value=180.25)
     def test_save_uses_ai_when_calories_missing(self, _ai):
         url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})

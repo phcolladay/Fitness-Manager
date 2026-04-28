@@ -15,7 +15,9 @@
       {% csrf_token %}
       {{ form.as_p }}
       <div class="fm-form-actions">
-        <button class="fm-btn fm-btn-primary" type="submit">Upload</button>
+        <button class="fm-btn fm-btn-primary" type="submit" data-ai-submit data-loading-text="Analyzing...">
+          Upload
+        </button>
         <a class="fm-btn fm-btn-ghost" href="{% url 'nutrition:add' %}">Cancel</a>
       </div>
     </form>
