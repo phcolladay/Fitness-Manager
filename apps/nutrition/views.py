@@ -234,6 +234,8 @@ def food_summary(request):
         "zinc_mg": "Zinc (mg)",
         "magnesium_mg": "Magnesium (mg)",
     }
+    macro_recommended = {"protein_g": 50, "carbs_g": 275, "fat_g": 78}
+    micro_recommended = {"fiber_g": 28, "sodium_mg": 2300, "iron_mg": 18, "calcium_mg": 1300, "vitamin_c_mg": 90}
 
     micros_total = {}
     for item in foods:
@@ -255,8 +257,6 @@ def food_summary(request):
         ref = micro_recommended.get(key)
         micros_display.append({"label": label, "value": value, "reference": ref})
 
-    macro_recommended = {"protein_g": 50, "carbs_g": 275, "fat_g": 78}
-    micro_recommended = {"fiber_g": 28, "sodium_mg": 2300, "iron_mg": 18, "calcium_mg": 1300, "vitamin_c_mg": 90}
     macro_pct = {
         "protein_g": round((float(protein) / macro_recommended["protein_g"]) * 100, 1) if protein else 0,
         "carbs_g": round((float(carbs) / macro_recommended["carbs_g"]) * 100, 1) if carbs else 0,

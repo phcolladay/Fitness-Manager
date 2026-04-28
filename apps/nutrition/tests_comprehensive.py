@@ -520,6 +520,21 @@ class FoodSummaryViewTests(NutritionViewTestBase):
         response = self.client.get(reverse("nutrition:summary") + "?period=month")
         self.assertEqual(response.status_code, 200)
 
+    def test_summary_with_micronutrients_returns_200(self):
+        self.create_food_entry(
+            micronutrients={
+                "vitamin_c_mg": 42.5,
+                "iron_mg": 3.2,
+                "potassium_mg": 410,
+            }
+        )
+
+        response = self.client.get(reverse("nutrition:summary"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Vitamin C")
+        self.assertContains(response, "Potassium")
+
     def test_anonymous_user_is_redirected(self):
         self.client.logout()
         response = self.client.get(reverse("nutrition:summary"))
