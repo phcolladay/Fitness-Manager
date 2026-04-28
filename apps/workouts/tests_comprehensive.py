@@ -105,6 +105,10 @@ class EstimateCaloriesTests(TestCase):
         # 3.0 * 60 = 180.0
         self.assertEqual(estimate_calories("mobility", 60), 180.0)
 
+    def test_hiit_calories(self):
+        # 10.0 * 12 = 120.0
+        self.assertEqual(estimate_calories("hiit", 12), 120.0)
+
     def test_unknown_category_uses_default_5(self):
         # 5.0 * 10 = 50.0
         self.assertEqual(estimate_calories("general", 10), 50.0)
@@ -350,6 +354,13 @@ class ExerciseEntryFormTests(TestCase):
     def test_valid_data_is_valid(self):
         form = ExerciseEntryForm(data=self._valid_data())
         self.assertTrue(form.is_valid(), form.errors)
+
+    def test_exercise_name_uses_library_dropdown(self):
+        form = ExerciseEntryForm()
+        self.assertEqual(form.fields["exercise_name"].widget.__class__.__name__, "Select")
+        choices = {value for value, _label in form.fields["exercise_name"].choices}
+        self.assertIn("Bench Press", choices)
+        self.assertIn("Jump Squats", choices)
 
     def test_negative_duration_is_invalid(self):
         data = self._valid_data()
@@ -720,7 +731,7 @@ class ExerciseEditViewTests(BaseViewTestCase):
                 "exercise_id": self.exercise.id,
             }),
             {
-                "exercise_name": "Pull-up",
+                "exercise_name": "Pull Up",
                 "category": "strength",
                 "muscle_group": "back",
                 "duration_minutes": 20,
@@ -728,7 +739,7 @@ class ExerciseEditViewTests(BaseViewTestCase):
             },
         )
         self.exercise.refresh_from_db()
-        self.assertEqual(self.exercise.exercise_name, "Pull-up")
+        self.assertEqual(self.exercise.exercise_name, "Pull Up")
         # exercise_edit on success redirects (302)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(

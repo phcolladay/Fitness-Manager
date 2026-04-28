@@ -180,3 +180,20 @@ class ExerciseAIEstimateFlowTests(TestCase):
         )
         entry = ExerciseEntry.objects.get(workout=self.workout)
         self.assertEqual(float(entry.calories_burned), 80.0)
+
+    def test_save_populates_classification_from_library(self):
+        url = reverse("workouts:exercise_add", kwargs={"workout_id": self.workout.id})
+        response = self.client.post(
+            url,
+            {
+                "exercise_name": "Jump Squats",
+                "category": "",
+                "muscle_group": "",
+                "duration_minutes": 12,
+                "calories_burned": "120",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        entry = ExerciseEntry.objects.get(workout=self.workout)
+        self.assertEqual(entry.category, "hiit")
+        self.assertEqual(entry.muscle_group, "legs")

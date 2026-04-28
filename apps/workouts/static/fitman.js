@@ -1,6 +1,47 @@
 (function () {
   var activeAiSubmitter = null;
 
+  function initExerciseLibraryFields() {
+    var dataNode = document.getElementById("exercise-library-data");
+    var exerciseField = document.getElementById("id_exercise_name");
+    var categoryField = document.getElementById("id_category");
+    var muscleField = document.getElementById("id_muscle_group");
+
+    if (!dataNode || !exerciseField) {
+      return;
+    }
+
+    var items;
+    try {
+      items = JSON.parse(dataNode.textContent);
+    } catch (error) {
+      return;
+    }
+
+    var byName = {};
+    items.forEach(function (item) {
+      byName[item.name] = item;
+    });
+
+    function fillClassification(overwrite) {
+      var selected = byName[exerciseField.value];
+      if (!selected) {
+        return;
+      }
+      if (categoryField && (overwrite || !categoryField.value)) {
+        categoryField.value = selected.category || "";
+      }
+      if (muscleField && (overwrite || !muscleField.value)) {
+        muscleField.value = selected.muscle_group || "";
+      }
+    }
+
+    fillClassification(false);
+    exerciseField.addEventListener("change", function () {
+      fillClassification(true);
+    });
+  }
+
   function preserveSubmitterValue(form, button) {
     if (!button.name) {
       return;
@@ -56,4 +97,6 @@
     setLoading(button);
     activeAiSubmitter = null;
   });
+
+  initExerciseLibraryFields();
 })();

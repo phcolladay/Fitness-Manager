@@ -17,6 +17,7 @@ EXERCISE_CATEGORIES = {
 
 CALORIES_PER_MINUTE = {
     "cardio": 8.0,
+    "hiit": 10.0,
     "strength": 6.0,
     "core": 5.0,
     "mobility": 3.0,

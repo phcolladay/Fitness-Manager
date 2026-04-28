@@ -226,6 +226,12 @@ def _workout_period(period: str):
 
 def _populate_classification(exercise: ExerciseEntry) -> None:
     if not exercise.category or not exercise.muscle_group:
+        library_item = ExerciseLibrary.objects.filter(name=exercise.exercise_name).first()
+        if library_item:
+            exercise.category = exercise.category or library_item.category
+            exercise.muscle_group = exercise.muscle_group or library_item.muscle_group
+
+    if not exercise.category or not exercise.muscle_group:
         exercise.category, exercise.muscle_group = classify_exercise(exercise.exercise_name)
         exercise.auto_classified = True
 
@@ -284,6 +290,17 @@ def _exercise_prefill_query(data: dict) -> str:
             continue
         params[key] = value
     return urlencode(params)
+
+
+def _exercise_form_context(form: ExerciseEntryForm, workout: Workout, *, mode=None) -> dict:
+    context = {
+        "form": form,
+        "workout": workout,
+        "exercise_options": getattr(form, "exercise_options", []),
+    }
+    if mode:
+        context["mode"] = mode
+    return context
 
 
 @login_required
@@ -430,7 +447,7 @@ def exercise_add(request, workout_id: int):
                     return render(
                         request,
                         "workouts/exercise_form.html",
-                        {"form": form, "workout": workout},
+                        _exercise_form_context(form, workout),
                     )
                 estimate_candidate = form.save(commit=False)
                 _populate_classification(estimate_candidate)
@@ -457,7 +474,7 @@ def exercise_add(request, workout_id: int):
                 return render(
                     request,
                     "workouts/exercise_form.html",
-                    {"form": form, "workout": workout},
+                    _exercise_form_context(form, workout),
                 )
 
         form = ExerciseEntryForm(request.POST)
@@ -478,7 +495,7 @@ def exercise_add(request, workout_id: int):
     return render(
         request,
         "workouts/exercise_form.html",
-        {"form": form, "workout": workout},
+        _exercise_form_context(form, workout),
     )
 
 
@@ -495,7 +512,7 @@ def exercise_edit(request, workout_id: int, exercise_id: int):
                     return render(
                         request,
                         "workouts/exercise_form.html",
-                        {"form": form, "workout": workout, "mode": "edit"},
+                        _exercise_form_context(form, workout, mode="edit"),
                     )
                 estimate_candidate = form.save(commit=False)
                 _populate_classification(estimate_candidate)
@@ -522,7 +539,7 @@ def exercise_edit(request, workout_id: int, exercise_id: int):
                 return render(
                     request,
                     "workouts/exercise_form.html",
-                    {"form": form, "workout": workout, "mode": "edit"},
+                    _exercise_form_context(form, workout, mode="edit"),
                 )
 
         form = ExerciseEntryForm(request.POST, instance=exercise)
@@ -541,7 +558,7 @@ def exercise_edit(request, workout_id: int, exercise_id: int):
             if key in request.GET:
                 initial[key] = request.GET.get(key)
         form = ExerciseEntryForm(instance=exercise, initial=initial)
-    return render(request, "workouts/exercise_form.html", {"form": form, "workout": workout, "mode": "edit"})
+    return render(request, "workouts/exercise_form.html", _exercise_form_context(form, workout, mode="edit"))
 
 
 @login_required
