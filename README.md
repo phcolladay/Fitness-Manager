@@ -105,7 +105,6 @@ Fitness-Manager/
 ├── templates/                 # Shared and registration templates
 ├── scripts/                   # Demo data and page-probe utilities
 ├── docs/                      # Supporting documentation and design artifacts
-├── features/config/           # Docker and deployment configuration assets
 ├── .github/workflows/         # GitHub Actions CI definitions
 ├── manage.py                  # Django management entry point
 ├── requirements.txt           # Runtime dependencies
