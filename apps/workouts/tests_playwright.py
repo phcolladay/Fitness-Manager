@@ -204,13 +204,13 @@ class PlaywrightUserFlowsTests(StaticLiveServerTestCase):
         workout = Workout.objects.get(user=user, name="E2E Strength Session")
 
         self.page.goto(f"{self.live_server_url}{reverse('workouts:exercise_add', args=[workout.id])}")
-        self.page.fill('input[name="exercise_name"]', "E2E Bench Press")
+        self.page.select_option('select[name="exercise_name"]', "Bench Press")
         self.page.fill('input[name="category"]', "strength")
         self.page.fill('input[name="muscle_group"]', "chest")
         self.page.fill('input[name="duration_minutes"]', "35")
         self.page.fill('input[name="calories_burned"]', "180")
         self._submit()
-        self.assertTrue(ExerciseEntry.objects.filter(user=user, workout=workout, exercise_name="E2E Bench Press").exists())
+        self.assertTrue(ExerciseEntry.objects.filter(user=user, workout=workout, exercise_name="Bench Press").exists())
 
         self.page.goto(f"{self.live_server_url}{reverse('goals:add')}")
         self.page.fill('input[name="name"]', "E2E Protein Goal")
